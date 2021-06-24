@@ -1,0 +1,30 @@
+---
+title: "Calculating Imprinting Probabilities"
+author: "Zane Billings"
+date: "6/24/2021"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+In this notebook I will test how to calculate HA imprinting probabilities for H1, H2, and H3 subtypes of influenza A for each birth-year cohort and season using the method of @Arevalo2020 and @Gostic2016.
+
+Once these calculations are completed and double-checked, they will be moved into the main CIVICdata repository and an LUT can be calculated for each season/birth-year combination, so that the imprinting probabilities can be assigned to each individual in the cohort.
+
+The imprinting probability, $m_{s,t,y}$ is defined as the probability that a perosn born in year $y$ yhad their first influenza A infection with subtype $s$ in season $t$ is given by
+$$m_{s,t,y} = l_{s,t} a_{y,t} U_{y,t}$$
+where the necessary components are
+
+* $l_{s,t}$, the frequency of subtype $s$ during season $t$;
+* $a_{y,t}$, the probability that a naive individual born in year $y$ is infected in season $t$;
+* ${i_{y,t}}$, the time-varying per-season infection rate;
+* $i_0$, the expected per-season infection rate;
+* $I_t$, the seasonal intensity of influenza A;
+* $\gamma_{y,t}$, the fraction of season $t$ experienced by an individual born in year $y$; and
+* $U_{y,t}$, the fraction of people born in year $y$ who were unexposed at the beginning of season $t$.
+
+# Calculating $i_0$, the attack rate constant
