@@ -13,6 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 In this notebook I will test how to calculate HA imprinting probabilities for H1, H2, and H3 subtypes of influenza A for each birth-year cohort and season using the method of @Arevalo2020 and @Gostic2016.
 
+Almost everything in this document is ripped directly from these two papers and just re-written in a format that is understandable by me.
+
 Once these calculations are completed and double-checked, they will be moved into the main CIVICdata repository and an LUT can be calculated for each season/birth-year combination, so that the imprinting probabilities can be assigned to each individual in the cohort.
 
 The imprinting probability, $m_{s,t,y}$ is defined as the probability that a perosn born in year $y$ yhad their first influenza A infection with subtype $s$ in season $t$ is given by
@@ -27,4 +29,51 @@ where the necessary components are
 * $\gamma_{y,t}$, the fraction of season $t$ experienced by an individual born in year $y$; and
 * $U_{y,t}$, the fraction of people born in year $y$ who were unexposed at the beginning of season $t$.
 
-# Calculating $i_0$, the attack rate constant
+# $i_0$: expected per-season infection rate
+
+Assuming that the rate of influenza A infection in each season is constant, say, $i_0$, we have that
+$$P(\text{infection in single season}) = 1 - e^{-i_0}.$$
+
+Assuming that the average probability of a naive individual being infected in a single season is $0.28$ [@bodewes2011, @gostic2016], then
+$$i_0 = -\ln(1 - 0.28) \approx `r round(-log(1-0.28),4)`.$$
+
+We will need this later so I have included the `R` code here even though it is trivial.
+
+```{r i0}
+(i_0 <- -log(1-0.28))
+```
+
+# $I_t$: seasonal intensity
+
+The **unnormalized** seasonal intensity, $\tilde{I_t}$, was defined as the product of $\text{ILI}_t$, the mean fraction of patients with ILI during season $t$, and $F_t$, the percentage of specimans testing positive for influenza A during season $t$; normalized by the total number of respiratory specimans tested positive for influenza A in season $t$. That is,
+$$\tilde{I_t} = \frac{\text{ILI}_t F_t}{N_t}.$$
+
+The final seasonal intensity, $I_t$, used in the calculations, was **normalized** by the mean intensity over the seasons from 1976 to 2017, i.e.
+$$I_t = \frac{\tilde{I_t}}{\frac{1}{42}\sum_{t = 1976}^{2017} \tilde{I_t}}.$$
+
+* For the seasons from 1997 through 2017, these data were obtained from ILINet and WHO/NREVSS (ADD CITATION HERE ONCE DATA IS OBTAINED).
+* For the seasons from 1976 - 1996, seasonal ILI data were not available and it was assumed that
+$$\text{ILI}_{1976} = \text{ILI}_{1977} = \ldots = \text{ILI}_{1996} = \frac{1}{21}\sum_{t=1997}^{2017} \text{ILI}_{t},$$
+and the data for $F_t$ and $N_t$ were obtained from @thompson2003.
+* For all seasons prior to 1976, no seasonal intensity data were available and it was assumed that the intensity of each season was equal to the mean intensity of seasons 1976 - 2017. That is,
+
+$$\tilde{I_t} = \frac{1}{42}\sum_{t = 1976}^{2017} \tilde{I_t}; \ t < 1976.$$
+
+The complete data for $\text{ILI}_t$, $F_t$, and $N_t$ are found in FILE NAME HERE. We can calculate the missing data approximations and intensity as follows.
+
+```{r seasonal intensity}
+
+```
+
+
+# $\gamma_{y,t}$: fraction of season experienced
+
+# ${i_{y,t}}$: time-varying per-season infection rate
+
+# $a_{y,t}$: individual time-varying probability of infection
+
+# $U_{y,t}$: the fraction unexposed
+
+# $l_{s,t}$: frequency of subtype $s$ during season $t$
+
+# $m_{s,t,y}$: imprinting probability

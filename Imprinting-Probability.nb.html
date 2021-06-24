@@ -223,6 +223,7 @@ pre code {
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
 <p>In this notebook I will test how to calculate HA imprinting probabilities for H1, H2, and H3 subtypes of influenza A for each birth-year cohort and season using the method of <span class="citation">@Arevalo2020</span> and <span class="citation">@Gostic2016</span>.</p>
+<p>Almost everything in this document is ripped directly from these two papers and just re-written in a format that is understandable by me.</p>
 <p>Once these calculations are completed and double-checked, they will be moved into the main CIVICdata repository and an LUT can be calculated for each season/birth-year combination, so that the imprinting probabilities can be assigned to each individual in the cohort.</p>
 <p>The imprinting probability, <span class="math inline">\(m_{s,t,y}\)</span> is defined as the probability that a perosn born in year <span class="math inline">\(y\)</span> yhad their first influenza A infection with subtype <span class="math inline">\(s\)</span> in season <span class="math inline">\(t\)</span> is given by <span class="math display">\[m_{s,t,y} = l_{s,t} a_{y,t} U_{y,t}\]</span> where the necessary components are</p>
 <ul>
@@ -235,12 +236,59 @@ pre code {
 <li><span class="math inline">\(U_{y,t}\)</span>, the fraction of people born in year <span class="math inline">\(y\)</span> who were unexposed at the beginning of season <span class="math inline">\(t\)</span>.</li>
 </ul>
 </div>
-<div id="calculating-i_0-the-attack-rate-constant" class="section level1">
-<h1>Calculating <span class="math inline">\(i_0\)</span>, the attack rate constant</h1>
+<div id="i_0-expected-per-season-infection-rate" class="section level1">
+<h1><span class="math inline">\(i_0\)</span>: expected per-season infection rate</h1>
+<p>Assuming that the rate of influenza A infection in each season is constant, say, <span class="math inline">\(i_0\)</span>, we have that <span class="math display">\[P(\text{infection in single season}) = 1 - e^{-i_0}.\]</span></p>
+<p>Assuming that the average probability of a naive individual being infected in a single season is <span class="math inline">\(0.28\)</span> <span class="citation">[@bodewes2011, @gostic2016]</span>, then <span class="math display">\[i_0 = -\ln(1 - 0.28) \approx 0.3285.\]</span></p>
+<p>We will need this later so I have included the <code>R</code> code here even though it is trivial.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuKGlfMCA8LSAtbG9nKDEtMC4yOCkpXG5gYGAifQ== -->
+<pre class="r"><code>(i_0 &lt;- -log(1-0.28))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuMzI4NTA0MVxuIn0= -->
+<pre><code>[1] 0.3285041</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="i_t-seasonal-intensity" class="section level1">
+<h1><span class="math inline">\(I_t\)</span>: seasonal intensity</h1>
+<p>The <strong>unnormalized</strong> seasonal intensity, <span class="math inline">\(\tilde{I_t}\)</span>, was defined as the product of <span class="math inline">\(\text{ILI}_t\)</span>, the mean fraction of patients with ILI during season <span class="math inline">\(t\)</span>, and <span class="math inline">\(F_t\)</span>, the percentage of specimans testing positive for influenza A during season <span class="math inline">\(t\)</span>; normalized by the total number of respiratory specimans tested positive for influenza A in season <span class="math inline">\(t\)</span>. That is, <span class="math display">\[\tilde{I_t} = \frac{\text{ILI}_t F_t}{N_t}.\]</span></p>
+<p>The final seasonal intensity, <span class="math inline">\(I_t\)</span>, used in the calculations, was <strong>normalized</strong> by the mean intensity over the seasons from 1976 to 2017, i.e. <span class="math display">\[I_t = \frac{\tilde{I_t}}{\frac{1}{42}\sum_{t = 1976}^{2017} \tilde{I_t}}.\]</span></p>
+<ul>
+<li>For the seasons from 1997 through 2017, these data were obtained from ILINet and WHO/NREVSS (ADD CITATION HERE ONCE DATA IS OBTAINED).</li>
+<li>For the seasons from 1976 - 1996, seasonal ILI data were not available and it was assumed that <span class="math display">\[\text{ILI}_{1976} = \text{ILI}_{1977} = \ldots = \text{ILI}_{1996} = \frac{1}{21}\sum_{t=1997}^{2017} \text{ILI}_{t},\]</span> and the data for <span class="math inline">\(F_t\)</span> and <span class="math inline">\(N_t\)</span> were obtained from <span class="citation">@thompson2003</span>.</li>
+<li>For all seasons prior to 1976, no seasonal intensity data were available and it was assumed that the intensity of each season was equal to the mean intensity of seasons 1976 - 2017. That is,</li>
+</ul>
+<p><span class="math display">\[\tilde{I_t} = \frac{1}{42}\sum_{t = 1976}^{2017} \tilde{I_t}; \ t &lt; 1976.\]</span></p>
+<p>The complete data for <span class="math inline">\(\text{ILI}_t\)</span>, <span class="math inline">\(F_t\)</span>, and <span class="math inline">\(N_t\)</span> are found in FILE NAME HERE. We can calculate the missing data approximations and intensity as follows.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="gamma_yt-fraction-of-season-experienced" class="section level1">
+<h1><span class="math inline">\(\gamma_{y,t}\)</span>: fraction of season experienced</h1>
+</div>
+<div id="i_yt-time-varying-per-season-infection-rate" class="section level1">
+<h1><span class="math inline">\({i_{y,t}}\)</span>: time-varying per-season infection rate</h1>
+</div>
+<div id="a_yt-individual-time-varying-probability-of-infection" class="section level1">
+<h1><span class="math inline">\(a_{y,t}\)</span>: individual time-varying probability of infection</h1>
+</div>
+<div id="u_yt-the-fraction-unexposed" class="section level1">
+<h1><span class="math inline">\(U_{y,t}\)</span>: the fraction unexposed</h1>
+</div>
+<div id="l_st-frequency-of-subtype-s-during-season-t" class="section level1">
+<h1><span class="math inline">\(l_{s,t}\)</span>: frequency of subtype <span class="math inline">\(s\)</span> during season <span class="math inline">\(t\)</span></h1>
+</div>
+<div id="m_sty-imprinting-probability" class="section level1">
+<h1><span class="math inline">\(m_{s,t,y}\)</span>: imprinting probability</h1>
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNhbGN1bGF0aW5nIEltcHJpbnRpbmcgUHJvYmFiaWxpdGllcyINCmF1dGhvcjogIlphbmUgQmlsbGluZ3MiDQpkYXRlOiAiNi8yNC8yMDIxIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KYGBge3Igc2V0dXAsIGluY2x1ZGU9RkFMU0V9DQprbml0cjo6b3B0c19jaHVuayRzZXQoZWNobyA9IFRSVUUpDQpgYGANCg0KIyBJbnRyb2R1Y3Rpb24NCg0KSW4gdGhpcyBub3RlYm9vayBJIHdpbGwgdGVzdCBob3cgdG8gY2FsY3VsYXRlIEhBIGltcHJpbnRpbmcgcHJvYmFiaWxpdGllcyBmb3IgSDEsIEgyLCBhbmQgSDMgc3VidHlwZXMgb2YgaW5mbHVlbnphIEEgZm9yIGVhY2ggYmlydGgteWVhciBjb2hvcnQgYW5kIHNlYXNvbiB1c2luZyB0aGUgbWV0aG9kIG9mIEBBcmV2YWxvMjAyMCBhbmQgQEdvc3RpYzIwMTYuDQoNCk9uY2UgdGhlc2UgY2FsY3VsYXRpb25zIGFyZSBjb21wbGV0ZWQgYW5kIGRvdWJsZS1jaGVja2VkLCB0aGV5IHdpbGwgYmUgbW92ZWQgaW50byB0aGUgbWFpbiBDSVZJQ2RhdGEgcmVwb3NpdG9yeSBhbmQgYW4gTFVUIGNhbiBiZSBjYWxjdWxhdGVkIGZvciBlYWNoIHNlYXNvbi9iaXJ0aC15ZWFyIGNvbWJpbmF0aW9uLCBzbyB0aGF0IHRoZSBpbXByaW50aW5nIHByb2JhYmlsaXRpZXMgY2FuIGJlIGFzc2lnbmVkIHRvIGVhY2ggaW5kaXZpZHVhbCBpbiB0aGUgY29ob3J0Lg0KDQpUaGUgaW1wcmludGluZyBwcm9iYWJpbGl0eSwgJG1fe3MsdCx5fSQgaXMgZGVmaW5lZCBhcyB0aGUgcHJvYmFiaWxpdHkgdGhhdCBhIHBlcm9zbiBib3JuIGluIHllYXIgJHkkIHloYWQgdGhlaXIgZmlyc3QgaW5mbHVlbnphIEEgaW5mZWN0aW9uIHdpdGggc3VidHlwZSAkcyQgaW4gc2Vhc29uICR0JCBpcyBnaXZlbiBieQ0KJCRtX3tzLHQseX0gPSBsX3tzLHR9IGFfe3ksdH0gVV97eSx0fSQkDQp3aGVyZSB0aGUgbmVjZXNzYXJ5IGNvbXBvbmVudHMgYXJlDQoNCiogJGxfe3MsdH0kLCB0aGUgZnJlcXVlbmN5IG9mIHN1YnR5cGUgJHMkIGR1cmluZyBzZWFzb24gJHQkOw0KKiAkYV97eSx0fSQsIHRoZSBwcm9iYWJpbGl0eSB0aGF0IGEgbmFpdmUgaW5kaXZpZHVhbCBib3JuIGluIHllYXIgJHkkIGlzIGluZmVjdGVkIGluIHNlYXNvbiAkdCQ7DQoqICR7aV97eSx0fX0kLCB0aGUgdGltZS12YXJ5aW5nIHBlci1zZWFzb24gaW5mZWN0aW9uIHJhdGU7DQoqICRpXzAkLCB0aGUgZXhwZWN0ZWQgcGVyLXNlYXNvbiBpbmZlY3Rpb24gcmF0ZTsNCiogJElfdCQsIHRoZSBzZWFzb25hbCBpbnRlbnNpdHkgb2YgaW5mbHVlbnphIEE7DQoqICRcZ2FtbWFfe3ksdH0kLCB0aGUgZnJhY3Rpb24gb2Ygc2Vhc29uICR0JCBleHBlcmllbmNlZCBieSBhbiBpbmRpdmlkdWFsIGJvcm4gaW4geWVhciAkeSQ7IGFuZA0KKiAkVV97eSx0fSQsIHRoZSBmcmFjdGlvbiBvZiBwZW9wbGUgYm9ybiBpbiB5ZWFyICR5JCB3aG8gd2VyZSB1bmV4cG9zZWQgYXQgdGhlIGJlZ2lubmluZyBvZiBzZWFzb24gJHQkLg0KDQojIENhbGN1bGF0aW5nICRpXzAkLCB0aGUgYXR0YWNrIHJhdGUgY29uc3RhbnQ=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNhbGN1bGF0aW5nIEltcHJpbnRpbmcgUHJvYmFiaWxpdGllcyINCmF1dGhvcjogIlphbmUgQmlsbGluZ3MiDQpkYXRlOiAiNi8yNC8yMDIxIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KYGBge3Igc2V0dXAsIGluY2x1ZGU9RkFMU0V9DQprbml0cjo6b3B0c19jaHVuayRzZXQoZWNobyA9IFRSVUUpDQpgYGANCg0KIyBJbnRyb2R1Y3Rpb24NCg0KSW4gdGhpcyBub3RlYm9vayBJIHdpbGwgdGVzdCBob3cgdG8gY2FsY3VsYXRlIEhBIGltcHJpbnRpbmcgcHJvYmFiaWxpdGllcyBmb3IgSDEsIEgyLCBhbmQgSDMgc3VidHlwZXMgb2YgaW5mbHVlbnphIEEgZm9yIGVhY2ggYmlydGgteWVhciBjb2hvcnQgYW5kIHNlYXNvbiB1c2luZyB0aGUgbWV0aG9kIG9mIEBBcmV2YWxvMjAyMCBhbmQgQEdvc3RpYzIwMTYuDQoNCkFsbW9zdCBldmVyeXRoaW5nIGluIHRoaXMgZG9jdW1lbnQgaXMgcmlwcGVkIGRpcmVjdGx5IGZyb20gdGhlc2UgdHdvIHBhcGVycyBhbmQganVzdCByZS13cml0dGVuIGluIGEgZm9ybWF0IHRoYXQgaXMgdW5kZXJzdGFuZGFibGUgYnkgbWUuDQoNCk9uY2UgdGhlc2UgY2FsY3VsYXRpb25zIGFyZSBjb21wbGV0ZWQgYW5kIGRvdWJsZS1jaGVja2VkLCB0aGV5IHdpbGwgYmUgbW92ZWQgaW50byB0aGUgbWFpbiBDSVZJQ2RhdGEgcmVwb3NpdG9yeSBhbmQgYW4gTFVUIGNhbiBiZSBjYWxjdWxhdGVkIGZvciBlYWNoIHNlYXNvbi9iaXJ0aC15ZWFyIGNvbWJpbmF0aW9uLCBzbyB0aGF0IHRoZSBpbXByaW50aW5nIHByb2JhYmlsaXRpZXMgY2FuIGJlIGFzc2lnbmVkIHRvIGVhY2ggaW5kaXZpZHVhbCBpbiB0aGUgY29ob3J0Lg0KDQpUaGUgaW1wcmludGluZyBwcm9iYWJpbGl0eSwgJG1fe3MsdCx5fSQgaXMgZGVmaW5lZCBhcyB0aGUgcHJvYmFiaWxpdHkgdGhhdCBhIHBlcm9zbiBib3JuIGluIHllYXIgJHkkIHloYWQgdGhlaXIgZmlyc3QgaW5mbHVlbnphIEEgaW5mZWN0aW9uIHdpdGggc3VidHlwZSAkcyQgaW4gc2Vhc29uICR0JCBpcyBnaXZlbiBieQ0KJCRtX3tzLHQseX0gPSBsX3tzLHR9IGFfe3ksdH0gVV97eSx0fSQkDQp3aGVyZSB0aGUgbmVjZXNzYXJ5IGNvbXBvbmVudHMgYXJlDQoNCiogJGxfe3MsdH0kLCB0aGUgZnJlcXVlbmN5IG9mIHN1YnR5cGUgJHMkIGR1cmluZyBzZWFzb24gJHQkOw0KKiAkYV97eSx0fSQsIHRoZSBwcm9iYWJpbGl0eSB0aGF0IGEgbmFpdmUgaW5kaXZpZHVhbCBib3JuIGluIHllYXIgJHkkIGlzIGluZmVjdGVkIGluIHNlYXNvbiAkdCQ7DQoqICR7aV97eSx0fX0kLCB0aGUgdGltZS12YXJ5aW5nIHBlci1zZWFzb24gaW5mZWN0aW9uIHJhdGU7DQoqICRpXzAkLCB0aGUgZXhwZWN0ZWQgcGVyLXNlYXNvbiBpbmZlY3Rpb24gcmF0ZTsNCiogJElfdCQsIHRoZSBzZWFzb25hbCBpbnRlbnNpdHkgb2YgaW5mbHVlbnphIEE7DQoqICRcZ2FtbWFfe3ksdH0kLCB0aGUgZnJhY3Rpb24gb2Ygc2Vhc29uICR0JCBleHBlcmllbmNlZCBieSBhbiBpbmRpdmlkdWFsIGJvcm4gaW4geWVhciAkeSQ7IGFuZA0KKiAkVV97eSx0fSQsIHRoZSBmcmFjdGlvbiBvZiBwZW9wbGUgYm9ybiBpbiB5ZWFyICR5JCB3aG8gd2VyZSB1bmV4cG9zZWQgYXQgdGhlIGJlZ2lubmluZyBvZiBzZWFzb24gJHQkLg0KDQojICRpXzAkOiBleHBlY3RlZCBwZXItc2Vhc29uIGluZmVjdGlvbiByYXRlDQoNCkFzc3VtaW5nIHRoYXQgdGhlIHJhdGUgb2YgaW5mbHVlbnphIEEgaW5mZWN0aW9uIGluIGVhY2ggc2Vhc29uIGlzIGNvbnN0YW50LCBzYXksICRpXzAkLCB3ZSBoYXZlIHRoYXQNCiQkUChcdGV4dHtpbmZlY3Rpb24gaW4gc2luZ2xlIHNlYXNvbn0pID0gMSAtIGVeey1pXzB9LiQkDQoNCkFzc3VtaW5nIHRoYXQgdGhlIGF2ZXJhZ2UgcHJvYmFiaWxpdHkgb2YgYSBuYWl2ZSBpbmRpdmlkdWFsIGJlaW5nIGluZmVjdGVkIGluIGEgc2luZ2xlIHNlYXNvbiBpcyAkMC4yOCQgW0Bib2Rld2VzMjAxMSwgQGdvc3RpYzIwMTZdLCB0aGVuDQokJGlfMCA9IC1cbG4oMSAtIDAuMjgpIFxhcHByb3ggYHIgcm91bmQoLWxvZygxLTAuMjgpLDQpYC4kJA0KDQpXZSB3aWxsIG5lZWQgdGhpcyBsYXRlciBzbyBJIGhhdmUgaW5jbHVkZWQgdGhlIGBSYCBjb2RlIGhlcmUgZXZlbiB0aG91Z2ggaXQgaXMgdHJpdmlhbC4NCg0KYGBge3IgaTB9DQooaV8wIDwtIC1sb2coMS0wLjI4KSkNCmBgYA0KDQojICRJX3QkOiBzZWFzb25hbCBpbnRlbnNpdHkNCg0KVGhlICoqdW5ub3JtYWxpemVkKiogc2Vhc29uYWwgaW50ZW5zaXR5LCAkXHRpbGRle0lfdH0kLCB3YXMgZGVmaW5lZCBhcyB0aGUgcHJvZHVjdCBvZiAkXHRleHR7SUxJfV90JCwgdGhlIG1lYW4gZnJhY3Rpb24gb2YgcGF0aWVudHMgd2l0aCBJTEkgZHVyaW5nIHNlYXNvbiAkdCQsIGFuZCAkRl90JCwgdGhlIHBlcmNlbnRhZ2Ugb2Ygc3BlY2ltYW5zIHRlc3RpbmcgcG9zaXRpdmUgZm9yIGluZmx1ZW56YSBBIGR1cmluZyBzZWFzb24gJHQkOyBub3JtYWxpemVkIGJ5IHRoZSB0b3RhbCBudW1iZXIgb2YgcmVzcGlyYXRvcnkgc3BlY2ltYW5zIHRlc3RlZCBwb3NpdGl2ZSBmb3IgaW5mbHVlbnphIEEgaW4gc2Vhc29uICR0JC4gVGhhdCBpcywNCiQkXHRpbGRle0lfdH0gPSBcZnJhY3tcdGV4dHtJTEl9X3QgRl90fXtOX3R9LiQkDQoNClRoZSBmaW5hbCBzZWFzb25hbCBpbnRlbnNpdHksICRJX3QkLCB1c2VkIGluIHRoZSBjYWxjdWxhdGlvbnMsIHdhcyAqKm5vcm1hbGl6ZWQqKiBieSB0aGUgbWVhbiBpbnRlbnNpdHkgb3ZlciB0aGUgc2Vhc29ucyBmcm9tIDE5NzYgdG8gMjAxNywgaS5lLg0KJCRJX3QgPSBcZnJhY3tcdGlsZGV7SV90fX17XGZyYWN7MX17NDJ9XHN1bV97dCA9IDE5NzZ9XnsyMDE3fSBcdGlsZGV7SV90fX0uJCQNCg0KKiBGb3IgdGhlIHNlYXNvbnMgZnJvbSAxOTk3IHRocm91Z2ggMjAxNywgdGhlc2UgZGF0YSB3ZXJlIG9idGFpbmVkIGZyb20gSUxJTmV0IGFuZCBXSE8vTlJFVlNTIChBREQgQ0lUQVRJT04gSEVSRSBPTkNFIERBVEEgSVMgT0JUQUlORUQpLg0KKiBGb3IgdGhlIHNlYXNvbnMgZnJvbSAxOTc2IC0gMTk5Niwgc2Vhc29uYWwgSUxJIGRhdGEgd2VyZSBub3QgYXZhaWxhYmxlIGFuZCBpdCB3YXMgYXNzdW1lZCB0aGF0DQokJFx0ZXh0e0lMSX1fezE5NzZ9ID0gXHRleHR7SUxJfV97MTk3N30gPSBcbGRvdHMgPSBcdGV4dHtJTEl9X3sxOTk2fSA9IFxmcmFjezF9ezIxfVxzdW1fe3Q9MTk5N31eezIwMTd9IFx0ZXh0e0lMSX1fe3R9LCQkDQphbmQgdGhlIGRhdGEgZm9yICRGX3QkIGFuZCAkTl90JCB3ZXJlIG9idGFpbmVkIGZyb20gQHRob21wc29uMjAwMy4NCiogRm9yIGFsbCBzZWFzb25zIHByaW9yIHRvIDE5NzYsIG5vIHNlYXNvbmFsIGludGVuc2l0eSBkYXRhIHdlcmUgYXZhaWxhYmxlIGFuZCBpdCB3YXMgYXNzdW1lZCB0aGF0IHRoZSBpbnRlbnNpdHkgb2YgZWFjaCBzZWFzb24gd2FzIGVxdWFsIHRvIHRoZSBtZWFuIGludGVuc2l0eSBvZiBzZWFzb25zIDE5NzYgLSAyMDE3LiBUaGF0IGlzLA0KDQokJFx0aWxkZXtJX3R9ID0gXGZyYWN7MX17NDJ9XHN1bV97dCA9IDE5NzZ9XnsyMDE3fSBcdGlsZGV7SV90fTsgXCB0IDwgMTk3Ni4kJA0KDQpUaGUgY29tcGxldGUgZGF0YSBmb3IgJFx0ZXh0e0lMSX1fdCQsICRGX3QkLCBhbmQgJE5fdCQgYXJlIGZvdW5kIGluIEZJTEUgTkFNRSBIRVJFLiBXZSBjYW4gY2FsY3VsYXRlIHRoZSBtaXNzaW5nIGRhdGEgYXBwcm94aW1hdGlvbnMgYW5kIGludGVuc2l0eSBhcyBmb2xsb3dzLg0KDQpgYGB7ciBzZWFzb25hbCBpbnRlbnNpdHl9DQoNCmBgYA0KDQoNCiMgJFxnYW1tYV97eSx0fSQ6IGZyYWN0aW9uIG9mIHNlYXNvbiBleHBlcmllbmNlZA0KDQojICR7aV97eSx0fX0kOiB0aW1lLXZhcnlpbmcgcGVyLXNlYXNvbiBpbmZlY3Rpb24gcmF0ZQ0KDQojICRhX3t5LHR9JDogaW5kaXZpZHVhbCB0aW1lLXZhcnlpbmcgcHJvYmFiaWxpdHkgb2YgaW5mZWN0aW9uDQoNCiMgJFVfe3ksdH0kOiB0aGUgZnJhY3Rpb24gdW5leHBvc2VkDQoNCiMgJGxfe3MsdH0kOiBmcmVxdWVuY3kgb2Ygc3VidHlwZSAkcyQgZHVyaW5nIHNlYXNvbiAkdCQNCg0KIyAkbV97cyx0LHl9JDogaW1wcmludGluZyBwcm9iYWJpbGl0eQ==</div>
 
 
 
