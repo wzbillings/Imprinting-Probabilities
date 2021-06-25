@@ -5,6 +5,7 @@ In this repo, I use the method of Gostic 2016 and Arevalo 2020 in order to calcu
 ## TODO
 
 [ ] Determine how the 2009.5 datum was calculated for Arevalo 2020 and check if this data point is specifically included in Gostic 2016.
+[ ] Create bibliography and add to .Rmd file.
 [x] Baseline attack rate calculation
 [x] Seasonal intensity
 [ ] Fraction of season experienced
