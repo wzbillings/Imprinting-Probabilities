@@ -11,7 +11,7 @@
 
 <meta name="author" content="Zane Billings" />
 
-<meta name="date" content="2021-06-24" />
+<meta name="date" content="2021-06-25" />
 
 <title>Calculating Imprinting Probabilities</title>
 
@@ -213,7 +213,7 @@ pre code {
 
 <h1 class="title toc-ignore">Calculating Imprinting Probabilities</h1>
 <h4 class="author">Zane Billings</h4>
-<h4 class="date">2021-06-24</h4>
+<h4 class="date">2021-06-25</h4>
 
 </div>
 
@@ -244,25 +244,198 @@ pre code {
 <p>We will need this later so I have included the <code>R</code> code here even though it is trivial.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuKGlfMCA8LSAtbG9nKDEtMC4yOCkpXG5gYGAifQ== -->
-<pre class="r"><code>(i_0 &lt;- -log(1-0.28))</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaV8wIDwtIC1sb2coMS0wLjI4KVxuYGBgIn0= -->
+<pre class="r"><code>i_0 &lt;- -log(1-0.28)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
 <div id="i_t-seasonal-intensity" class="section level1">
 <h1><span class="math inline">\(I_t\)</span>: seasonal intensity</h1>
-<p>The <strong>unnormalized</strong> seasonal intensity, <span class="math inline">\(\tilde{I_t}\)</span>, was defined as the product of <span class="math inline">\(\text{ILI}_t\)</span>, the mean fraction of patients with ILI during season <span class="math inline">\(t\)</span>, and <span class="math inline">\(F_t\)</span>, the percentage of specimans testing positive for influenza A during season <span class="math inline">\(t\)</span>; normalized by the total number of respiratory specimans tested positive for influenza A in season <span class="math inline">\(t\)</span>. That is, <span class="math display">\[\tilde{I_t} = \frac{\text{ILI}_t F_t}{N_t}.\]</span></p>
+<p>The <strong>unnormalized</strong> seasonal intensity, <span class="math inline">\(\tilde{I_t}\)</span>, was defined as the product of <span class="math inline">\(\text{ILI}_t\)</span>, the mean fraction of patients with ILI during season <span class="math inline">\(t\)</span>, and <span class="math inline">\(F_t\)</span>, the percentage of specimans testing positive for influenza A during season <span class="math inline">\(t\)</span>; divided by the total number of respiratory specimens tested in season <span class="math inline">\(t\)</span>. That is, <span class="math display">\[\tilde{I_t} = \frac{\text{ILI}_t F_t}{N_t}.\]</span></p>
 <p>The final seasonal intensity, <span class="math inline">\(I_t\)</span>, used in the calculations, was <strong>normalized</strong> by the mean intensity over the seasons from 1976 to 2020, i.e. <span class="math display">\[I_t = \frac{\tilde{I_t}}{\frac{1}{45}\sum_{k = 1976}^{2020} \tilde{I_k}}.\]</span></p>
 <ul>
-<li>For the seasons from 1997 through 2017, these data were obtained from ILINet and WHO/NREVSS (ADD CITATION HERE ONCE DATA IS OBTAINED).</li>
-<li>For the seasons from 1976 - 1996, seasonal ILI data were not available and it was assumed that</li>
+<li>For the seasons from 1997 through 2017:
+<ul>
+<li><span class="math inline">\(\text{ILI}_t\)</span> data were obtained from the ILINet data available from <span class="citation">@fluview</span>. The data are reported as weekly (EXPLAIN HOW TO GET THE QUANTITY)</li>
+<li><span class="math inline">\(F_t\)</span> and <span class="math inline">\(N_t\)</span> data were obtained from the WHO/NREVSS data also available from <span class="citation">@fluview</span>. For the data from 2015 onward, week 40 of a calendar year was considered the beginning of an influenza season (so e.g. the 2015 influenza season begins in week 40 of 2015 and lasts through week 39 of 2016). Furthermore, the total number of specimens and total number of positive influenza A specimens from the clinical labs and public health surveillance were added together to obtain the totals.</li>
+</ul></li>
+<li>For the seasons from 1976 - 1996, seasonal ILI data were not available and it was assumed that the <span class="math inline">\(\text{ILI}_t\)</span> for these years was equal to the mean of the <span class="math inline">\(\text{ILI}_t\)</span> for the 1997 - 2020 seasons. The available data were obtained from <span class="citation">@thompson2003</span>, and the ILI data were calculated as</li>
 </ul>
-<p><span class="math display">\[\text{ILI}_{t} = \frac{1}{24}\sum_{k=1997}^{2020} \text{ILI}_{k}; \ t = 1976, 1977, \ldots, 1996;\]</span> and the data for <span class="math inline">\(F_t\)</span> and <span class="math inline">\(N_t\)</span> were obtained from <span class="citation">@thompson2003</span>. * For all seasons prior to 1976, no seasonal intensity data were available and it was assumed that the intensity of each season was equal to the mean intensity of seasons 1976 - 2017. That is,</p>
+<p><span class="math display">\[\text{ILI}_{t} = \frac{1}{24}\sum_{k=1997}^{2020} \text{ILI}_{k}; \ t = 1976, 1977, \ldots, 1996.\]</span></p>
+<ul>
+<li>For all seasons prior to 1976, no seasonal intensity data were available and it was assumed that the intensity of each season was equal to the mean intensity of seasons 1976 - 2017. That is,</li>
+</ul>
 <p><span class="math display">\[\tilde{I_t} = \frac{1}{45}\sum_{k = 1976}^{2020} \tilde{I_k}; \ t &lt; 1976.\]</span></p>
-<p>The complete data for <span class="math inline">\(\text{ILI}_t\)</span>, <span class="math inline">\(F_t\)</span>, and <span class="math inline">\(N_t\)</span> are found in FILE NAME HERE. We can calculate the missing data approximations and intensity as follows.</p>
+<p>Associated raw data files:</p>
+<ul>
+<li><code>data\thompson2003.csv</code> contains the table from <span class="citation">@thompson2003</span> with the <span class="math inline">\(F_t\)</span> and <span class="math inline">\(N_t\)</span> data used for seasons 1976 - 1996.</li>
+<li><code>data\ILINet.csv</code> contains the ILINet data accessible from <span class="citation">@fluview</span>, used for the <span class="math inline">\(\text{ILI}_t\)</span> data from seasons 1997 - 2020.</li>
+<li>who/nvress</li>
+</ul>
+<p>In order to calculate the seasonal intensity, first we import the data used for the seasons beginning in 1976 though 1996.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGhvbXBzb24yMDAzIDwtIFxuICByZWFkcjo6cmVhZF9jc3YoXG4gICAgZmlsZSA9IGhlcmU6OmhlcmUoXCJkYXRhL1Rob21wc29uMjAwMy5jc3ZcIiksXG4gICAgc2tpcCA9IDIsXG4gICAgbl9tYXggPSAyMSxcbiAgICBjb2xfdHlwZXMgPSBcImNkZGRkZGRkXCJcbiAgKSAlPiVcbiAgZHBseXI6OnRyYW5zbXV0ZShcbiAgICAjIHJlY29yZCBzZWFzb24gYXMgYmVnaW5uaW5nIHllYXIgb25seVxuICAgIHNlYXNvbiA9IGFzLm51bWVyaWMoc3Vic3RyKFNlYXNvbiwgMCwgNCkpLFxuICAgICMgTl90IGlzIHRvdGFsIG51bWJlciBvZiBzcGVjaW1lbnMgdGVzdGVkXG4gICAgTl90ID0gYFNwZWNpbWVuc1xcblRlc3RlZGAsXG4gICAgIyBGX3QgaXMgc3VtIG9mIEgxTjEgYW5kIEgzTjIgc3BlY2ltZW5zIHRlc3RlZFxuICAgIEZfdCA9IGBBKEgxTjEpXFxuUG9zaXRpdmVJc29sYXRlc2AgKyBgQShIM04yKVxcblBvc2l0aXZlSXNvbGF0ZXNgXG4gIClcbmBgYCJ9 -->
+<pre class="r"><code>thompson2003 &lt;- 
+  readr::read_csv(
+    file = here::here(&quot;data/Thompson2003.csv&quot;),
+    skip = 2,
+    n_max = 21,
+    col_types = &quot;cddddddd&quot;
+  ) %&gt;%
+  dplyr::transmute(
+    # record season as beginning year only
+    season = as.numeric(substr(Season, 0, 4)),
+    # N_t is total number of specimens tested
+    N_t = `Specimens\nTested`,
+    # F_t is sum of H1N1 and H3N2 specimens tested
+    F_t = `A(H1N1)\nPositiveIsolates` + `A(H3N2)\nPositiveIsolates`
+  )</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>From 1996 onward, we can use the ILINet and WHO/NREVSS data instead, so next we import that. First we import the pre-2015 data, which is already combined.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>The data post 2015 was collected from two different sources which have to be joined and summed together in order to get the totals.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxud2hvX25yZXZzc19waCA8LSBcbiAgcmVhZHI6OnJlYWRfY3N2KFxuICAgIGZpbGUgPSBoZXJlOjpoZXJlKFwiZGF0YS9XSE8tTlJFVlNTLXB1YmxpY2hlYWx0aC5jc3ZcIiksXG4gICAgc2tpcCA9IDEsXG4gICAgY29sX3R5cGVzID0gXCJjY2RkZGRkZGRkZGRcIlxuICApICU+JVxuICBkcGx5cjo6cm93d2lzZSgpICU+JVxuICBkcGx5cjo6dHJhbnNtdXRlKFxuICAgIHllYXIgPSBZRUFSLFxuICAgIHdlZWsgPSBXRUVLLFxuICAgIHNlYXNvbiA9IGlmZWxzZShXRUVLID49IDQwLCBZRUFSLCBZRUFSIC0gMSksXG4gICAgTl9waCA9IGBUT1RBTCBTUEVDSU1FTlNgLFxuICAgIEZfcGggPSBzdW0oYWNyb3NzKHN0YXJ0c193aXRoKFwiQSBcIikpKVxuICApXG5cbndob19ucmV2c3NfY2wgPC1cbiAgcmVhZHI6OnJlYWRfY3N2KFxuICAgIGZpbGUgPSBoZXJlOjpoZXJlKFwiZGF0YS9XSE8tTlJFVlNTLWNsaW5pY2FsLmNzdlwiKSxcbiAgICBza2lwID0gMSxcbiAgICBjb2xfdHlwZXMgPSBcImNjZGRkZGRkZGRcIlxuICApICU+JVxuICBkcGx5cjo6dHJhbnNtdXRlKFxuICAgIHllYXIgPSBZRUFSLFxuICAgIHdlZWsgPSBXRUVLLFxuICAgIHNlYXNvbiA9IGlmZWxzZShXRUVLID49IDQwLCBZRUFSLCBZRUFSIC0gMSksXG4gICAgTl9jbCA9IGBUT1RBTCBTUEVDSU1FTlNgLFxuICAgIEZfY2wgPSBgVE9UQUwgQWBcbiAgKVxuXG53aG9fbnJldnNzX3Bvc3QyMDE1IDwtXG4gIGRwbHlyOjpmdWxsX2pvaW4oXG4gICAgeCA9IHdob19ucmV2c3NfY2wsXG4gICAgeSA9IHdob19ucmV2c3NfcGgsXG4gICAgYnkgPSBjKFwieWVhclwiLCBcIndlZWtcIiwgXCJzZWFzb25cIilcbiAgKSAlPiVcbiAgZHBseXI6OnJvd3dpc2UoeWVhciwgd2Vlaywgc2Vhc29uKSAlPiVcbiAgZHBseXI6OnN1bW1hcml6ZShcbiAgICBOX3QgPSBOX2NsICsgTl9waCxcbiAgICBGX3QgPSBGX2NsICsgRl9waFxuICApXG5gYGAifQ== -->
+<pre class="r"><code>who_nrevss_ph &lt;- 
+  readr::read_csv(
+    file = here::here(&quot;data/WHO-NREVSS-publichealth.csv&quot;),
+    skip = 1,
+    col_types = &quot;ccdddddddddd&quot;
+  ) %&gt;%
+  dplyr::rowwise() %&gt;%
+  dplyr::transmute(
+    year = YEAR,
+    week = WEEK,
+    season = ifelse(WEEK &gt;= 40, YEAR, YEAR - 1),
+    N_ph = `TOTAL SPECIMENS`,
+    F_ph = sum(across(starts_with(&quot;A &quot;)))
+  )
+
+who_nrevss_cl &lt;-
+  readr::read_csv(
+    file = here::here(&quot;data/WHO-NREVSS-clinical.csv&quot;),
+    skip = 1,
+    col_types = &quot;ccdddddddd&quot;
+  ) %&gt;%
+  dplyr::transmute(
+    year = YEAR,
+    week = WEEK,
+    season = ifelse(WEEK &gt;= 40, YEAR, YEAR - 1),
+    N_cl = `TOTAL SPECIMENS`,
+    F_cl = `TOTAL A`
+  )
+
+who_nrevss_post2015 &lt;-
+  dplyr::full_join(
+    x = who_nrevss_cl,
+    y = who_nrevss_ph,
+    by = c(&quot;year&quot;, &quot;week&quot;, &quot;season&quot;)
+  ) %&gt;%
+  dplyr::rowwise(year, week, season) %&gt;%
+  dplyr::summarize(
+    N_t = N_cl + N_ph,
+    F_t = F_cl + F_ph
+  )</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiYHN1bW1hcmlzZSgpYCBoYXMgZ3JvdXBlZCBvdXRwdXQgYnkgJ3llYXInLCAnd2VlaycsICdzZWFzb24nLiBZb3UgY2FuIG92ZXJyaWRlIHVzaW5nIHRoZSBgLmdyb3Vwc2AgYXJndW1lbnQuXG4ifQ== -->
+<pre><code>`summarise()` has grouped output by &#39;year&#39;, &#39;week&#39;, &#39;season&#39;. You can override using the `.groups` argument.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Now we just need to put the data together.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxud2hvX25yZXZzcyA8LSBcbiAgcmJpbmQod2hvX25yZXZzc19wcmUyMDE1LCB3aG9fbnJldnNzX3Bvc3QyMDE1KSAlPiVcbiAgZHBseXI6OnVuZ3JvdXAoKSAlPiVcbiAgZHBseXI6OmFycmFuZ2UoeWVhciwgd2VlaylcbmBgYCJ9 -->
+<pre class="r"><code>who_nrevss &lt;- 
+  rbind(who_nrevss_pre2015, who_nrevss_post2015) %&gt;%
+  dplyr::ungroup() %&gt;%
+  dplyr::arrange(year, week)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>The next task for calculating seasonal intensity is to import the ILI net data so that the ILI data can be joined to this.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaWxpbmV0IDwtXG4gIHJlYWRyOjpyZWFkX2NzdihcbiAgICBmaWxlID0gaGVyZTo6aGVyZShcImRhdGEvSUxJTmV0LmNzdlwiKSxcbiAgICBza2lwID0gMSxcbiAgICBuYSA9IGMoXCJcIiwgXCJOQVwiLCBcIlhcIiksXG4gICAgY29sX3R5cGUgPSBcImNjZGRkZGRkZGRkZGRkZFwiXG4gICkgJT4lXG4gIGRwbHlyOjp0cmFuc211dGUoXG4gICAgd2VlayA9IFdFRUssXG4gICAgeWVhciA9IFlFQVIsXG4gICAgc2Vhc29uID0gaWZlbHNlKFdFRUsgPj0gNDAsIFlFQVIsIFlFQVIgLSAxKSxcbiAgICBmcmFjdGlvbl9pbGkgPSBgJSBXRUlHSFRFRCBJTElgIC8gMTAwLFxuICApXG5gYGAifQ== -->
+<pre class="r"><code>ilinet &lt;-
+  readr::read_csv(
+    file = here::here(&quot;data/ILINet.csv&quot;),
+    skip = 1,
+    na = c(&quot;&quot;, &quot;NA&quot;, &quot;X&quot;),
+    col_type = &quot;ccddddddddddddd&quot;
+  ) %&gt;%
+  dplyr::transmute(
+    week = WEEK,
+    year = YEAR,
+    season = ifelse(WEEK &gt;= 40, YEAR, YEAR - 1),
+    fraction_ili = `% WEIGHTED ILI` / 100,
+  )</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Now the ILI fractions need to be joined to the other data, and then <span class="math inline">\(N_t\)</span> and <span class="math inline">\(F_t\)</span> should be summed by season, and <span class="math inline">\(\text{ILI}_t\)</span> should be averaged by season.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW50ZW5zaXR5X3Bvc3Q5NyA8LSBcbiAgZHBseXI6OmZ1bGxfam9pbihcbiAgICB4ID0gd2hvX25yZXZzcyxcbiAgICB5ID0gaWxpbmV0LFxuICAgIGJ5ID0gYyhcIndlZWtcIiwgXCJ5ZWFyXCIsIFwic2Vhc29uXCIpXG4gICkgJT4lXG4gIGRwbHlyOjpncm91cF9ieShzZWFzb24pICU+JVxuICBkcGx5cjo6c3VtbWFyaXplKFxuICAgIE5fdCA9IHN1bShOX3QpLFxuICAgIEZfdCA9IHN1bShGX3QpLFxuICAgIElMSV90ID0gbWVhbihmcmFjdGlvbl9pbGkpLFxuICAgIC5ncm91cHMgPSBcImRyb3BcIlxuICApICU+JVxuICBkcGx5cjo6dW5ncm91cCgpXG5gYGAifQ== -->
+<pre class="r"><code>intensity_post97 &lt;- 
+  dplyr::full_join(
+    x = who_nrevss,
+    y = ilinet,
+    by = c(&quot;week&quot;, &quot;year&quot;, &quot;season&quot;)
+  ) %&gt;%
+  dplyr::group_by(season) %&gt;%
+  dplyr::summarize(
+    N_t = sum(N_t),
+    F_t = sum(F_t),
+    ILI_t = mean(fraction_ili),
+    .groups = &quot;drop&quot;
+  ) %&gt;%
+  dplyr::ungroup()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Next we can combine this with the data for the 1976 to 1996 seasons, and fill in the missing values for <span class="math inline">\(\text{ILI}_t\)</span>.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGhvbXBzb24yMDAzX2ltcHV0ZWQgPC0gdGhvbXBzb24yMDAzICU+JVxuICBkcGx5cjo6bXV0YXRlKFxuICAgIElMSV90ID0gbWVhbihpbnRlbnNpdHlfcG9zdDk3JElMSV90KVxuICApXG5cbmludGVuc2l0eV9wb3N0NzYgPC0gcmJpbmQodGhvbXBzb24yMDAzX2ltcHV0ZWQsIGludGVuc2l0eV9wb3N0OTcpXG5gYGAifQ== -->
+<pre class="r"><code>thompson2003_imputed &lt;- thompson2003 %&gt;%
+  dplyr::mutate(
+    ILI_t = mean(intensity_post97$ILI_t)
+  )
+
+intensity_post76 &lt;- rbind(thompson2003_imputed, intensity_post97)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Now we have all the information we need to calculate seasonal intensity, and to fill in the intensity for the seasons from 1918 - 1975 as well. Finally, we need to normalize the values.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2Vhc29uYWxfaW50ZW5zaXR5IDwtIGludGVuc2l0eV9wb3N0NzYgJT4lXG4gIGRwbHlyOjpyb3d3aXNlKCkgJT4lXG4gIGRwbHlyOjp0cmFuc211dGUoXG4gICAgc2Vhc29uID0gc2Vhc29uLFxuICAgIElfdCA9IElMSV90ICogRl90IC8gTl90XG4gIClcblxucHJlXzc2X2ludGVuc2l0eSA8LSBkYXRhLmZyYW1lKFxuICBzZWFzb24gPSBzZXEoMTkxOCwgMTk3NSwgMSksXG4gIElfdCA9IHJlcChtZWFuKHNlYXNvbmFsX2ludGVuc2l0eSRJX3QsIG5hLnJtID0gVFJVRSksIDU4KVxuKVxuXG4jIE5vcm1hbGl6ZSB0aGUgaW50ZW5zaXR5IHZhbHVlcyAoSS10aWxkZV90IHRvIElfdCBzdGVwKVxuc2Vhc29uYWxfaW50ZW5zaXR5IDwtIFxuICByYmluZChwcmVfNzZfaW50ZW5zaXR5LCBzZWFzb25hbF9pbnRlbnNpdHkpICU+JVxuICBkcGx5cjo6bXV0YXRlKElfdCA9IElfdCAvIG1lYW4oc2Vhc29uYWxfaW50ZW5zaXR5JElfdCwgbmEucm0gPSBUUlVFKSlcbmBgYCJ9 -->
+<pre class="r"><code>seasonal_intensity &lt;- intensity_post76 %&gt;%
+  dplyr::rowwise() %&gt;%
+  dplyr::transmute(
+    season = season,
+    I_t = ILI_t * F_t / N_t
+  )
+
+pre_76_intensity &lt;- data.frame(
+  season = seq(1918, 1975, 1),
+  I_t = rep(mean(seasonal_intensity$I_t, na.rm = TRUE), 58)
+)
+
+# Normalize the intensity values (I-tilde_t to I_t step)
+seasonal_intensity &lt;- 
+  rbind(pre_76_intensity, seasonal_intensity) %&gt;%
+  dplyr::mutate(I_t = I_t / mean(seasonal_intensity$I_t, na.rm = TRUE))</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -286,7 +459,7 @@ pre code {
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNhbGN1bGF0aW5nIEltcHJpbnRpbmcgUHJvYmFiaWxpdGllcyINCmF1dGhvcjogIlphbmUgQmlsbGluZ3MiDQpkYXRlOiAiYHIgU3lzLkRhdGUoKWAiDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpgYGB7ciBzZXR1cCwgaW5jbHVkZT1GQUxTRX0NCmtuaXRyOjpvcHRzX2NodW5rJHNldChlY2hvID0gVFJVRSkNCmBgYA0KDQojIEludHJvZHVjdGlvbg0KDQpJbiB0aGlzIG5vdGVib29rIEkgd2lsbCB0ZXN0IGhvdyB0byBjYWxjdWxhdGUgSEEgaW1wcmludGluZyBwcm9iYWJpbGl0aWVzIGZvciBIMSwgSDIsIGFuZCBIMyBzdWJ0eXBlcyBvZiBpbmZsdWVuemEgQSBmb3IgZWFjaCBiaXJ0aC15ZWFyIGNvaG9ydCBhbmQgc2Vhc29uIHVzaW5nIHRoZSBtZXRob2Qgb2YgQEFyZXZhbG8yMDIwIGFuZCBAR29zdGljMjAxNi4NCg0KQWxtb3N0IGV2ZXJ5dGhpbmcgaW4gdGhpcyBkb2N1bWVudCBpcyByaXBwZWQgZGlyZWN0bHkgZnJvbSB0aGVzZSB0d28gcGFwZXJzIGFuZCBqdXN0IHJlLXdyaXR0ZW4gaW4gYSBmb3JtYXQgdGhhdCBpcyB1bmRlcnN0YW5kYWJsZSBieSBtZS4NCg0KT25jZSB0aGVzZSBjYWxjdWxhdGlvbnMgYXJlIGNvbXBsZXRlZCBhbmQgZG91YmxlLWNoZWNrZWQsIHRoZXkgd2lsbCBiZSBtb3ZlZCBpbnRvIHRoZSBtYWluIENJVklDZGF0YSByZXBvc2l0b3J5IGFuZCBhbiBMVVQgY2FuIGJlIGNhbGN1bGF0ZWQgZm9yIGVhY2ggc2Vhc29uL2JpcnRoLXllYXIgY29tYmluYXRpb24sIHNvIHRoYXQgdGhlIGltcHJpbnRpbmcgcHJvYmFiaWxpdGllcyBjYW4gYmUgYXNzaWduZWQgdG8gZWFjaCBpbmRpdmlkdWFsIGluIHRoZSBjb2hvcnQuDQoNClRoZSBpbXByaW50aW5nIHByb2JhYmlsaXR5LCAkbV97cyx0LHl9JCBpcyBkZWZpbmVkIGFzIHRoZSBwcm9iYWJpbGl0eSB0aGF0IGEgcGVyb3NuIGJvcm4gaW4geWVhciAkeSQgeWhhZCB0aGVpciBmaXJzdCBpbmZsdWVuemEgQSBpbmZlY3Rpb24gd2l0aCBzdWJ0eXBlICRzJCBpbiBzZWFzb24gJHQkIGlzIGdpdmVuIGJ5DQokJG1fe3MsdCx5fSA9IGxfe3MsdH0gYV97eSx0fSBVX3t5LHR9JCQNCndoZXJlIHRoZSBuZWNlc3NhcnkgY29tcG9uZW50cyBhcmUNCg0KKiAkbF97cyx0fSQsIHRoZSBmcmVxdWVuY3kgb2Ygc3VidHlwZSAkcyQgZHVyaW5nIHNlYXNvbiAkdCQ7DQoqICRhX3t5LHR9JCwgdGhlIHByb2JhYmlsaXR5IHRoYXQgYSBuYWl2ZSBpbmRpdmlkdWFsIGJvcm4gaW4geWVhciAkeSQgaXMgaW5mZWN0ZWQgaW4gc2Vhc29uICR0JDsNCiogJHtpX3t5LHR9fSQsIHRoZSB0aW1lLXZhcnlpbmcgcGVyLXNlYXNvbiBpbmZlY3Rpb24gcmF0ZTsNCiogJGlfMCQsIHRoZSBleHBlY3RlZCBwZXItc2Vhc29uIGluZmVjdGlvbiByYXRlOw0KKiAkSV90JCwgdGhlIHNlYXNvbmFsIGludGVuc2l0eSBvZiBpbmZsdWVuemEgQTsNCiogJFxnYW1tYV97eSx0fSQsIHRoZSBmcmFjdGlvbiBvZiBzZWFzb24gJHQkIGV4cGVyaWVuY2VkIGJ5IGFuIGluZGl2aWR1YWwgYm9ybiBpbiB5ZWFyICR5JDsgYW5kDQoqICRVX3t5LHR9JCwgdGhlIGZyYWN0aW9uIG9mIHBlb3BsZSBib3JuIGluIHllYXIgJHkkIHdobyB3ZXJlIHVuZXhwb3NlZCBhdCB0aGUgYmVnaW5uaW5nIG9mIHNlYXNvbiAkdCQuDQoNCiMgJGlfMCQ6IGV4cGVjdGVkIHBlci1zZWFzb24gaW5mZWN0aW9uIHJhdGUNCg0KQXNzdW1pbmcgdGhhdCB0aGUgcmF0ZSBvZiBpbmZsdWVuemEgQSBpbmZlY3Rpb24gaW4gZWFjaCBzZWFzb24gaXMgY29uc3RhbnQsIHNheSwgJGlfMCQsIHdlIGhhdmUgdGhhdA0KJCRQKFx0ZXh0e2luZmVjdGlvbiBpbiBzaW5nbGUgc2Vhc29ufSkgPSAxIC0gZV57LWlfMH0uJCQNCg0KQXNzdW1pbmcgdGhhdCB0aGUgYXZlcmFnZSBwcm9iYWJpbGl0eSBvZiBhIG5haXZlIGluZGl2aWR1YWwgYmVpbmcgaW5mZWN0ZWQgaW4gYSBzaW5nbGUgc2Vhc29uIGlzICQwLjI4JCBbQGJvZGV3ZXMyMDExLCBAZ29zdGljMjAxNl0sIHRoZW4NCiQkaV8wID0gLVxsbigxIC0gMC4yOCkgXGFwcHJveCBgciByb3VuZCgtbG9nKDEtMC4yOCksNClgLiQkDQoNCldlIHdpbGwgbmVlZCB0aGlzIGxhdGVyIHNvIEkgaGF2ZSBpbmNsdWRlZCB0aGUgYFJgIGNvZGUgaGVyZSBldmVuIHRob3VnaCBpdCBpcyB0cml2aWFsLg0KDQpgYGB7ciBpMH0NCihpXzAgPC0gLWxvZygxLTAuMjgpKQ0KYGBgDQoNCiMgJElfdCQ6IHNlYXNvbmFsIGludGVuc2l0eQ0KDQpUaGUgKip1bm5vcm1hbGl6ZWQqKiBzZWFzb25hbCBpbnRlbnNpdHksICRcdGlsZGV7SV90fSQsIHdhcyBkZWZpbmVkIGFzIHRoZSBwcm9kdWN0IG9mICRcdGV4dHtJTEl9X3QkLCB0aGUgbWVhbiBmcmFjdGlvbiBvZiBwYXRpZW50cyB3aXRoIElMSSBkdXJpbmcgc2Vhc29uICR0JCwgYW5kICRGX3QkLCB0aGUgcGVyY2VudGFnZSBvZiBzcGVjaW1hbnMgdGVzdGluZyBwb3NpdGl2ZSBmb3IgaW5mbHVlbnphIEEgZHVyaW5nIHNlYXNvbiAkdCQ7IG5vcm1hbGl6ZWQgYnkgdGhlIHRvdGFsIG51bWJlciBvZiByZXNwaXJhdG9yeSBzcGVjaW1hbnMgdGVzdGVkIHBvc2l0aXZlIGZvciBpbmZsdWVuemEgQSBpbiBzZWFzb24gJHQkLiBUaGF0IGlzLA0KJCRcdGlsZGV7SV90fSA9IFxmcmFje1x0ZXh0e0lMSX1fdCBGX3R9e05fdH0uJCQNCg0KVGhlIGZpbmFsIHNlYXNvbmFsIGludGVuc2l0eSwgJElfdCQsIHVzZWQgaW4gdGhlIGNhbGN1bGF0aW9ucywgd2FzICoqbm9ybWFsaXplZCoqIGJ5IHRoZSBtZWFuIGludGVuc2l0eSBvdmVyIHRoZSBzZWFzb25zIGZyb20gMTk3NiB0byAyMDIwLCBpLmUuDQokJElfdCA9IFxmcmFje1x0aWxkZXtJX3R9fXtcZnJhY3sxfXtgciAyMDIwIC0gMTk3NiArIDFgfVxzdW1fe2sgPSAxOTc2fV57MjAyMH0gXHRpbGRle0lfa319LiQkDQoNCiogRm9yIHRoZSBzZWFzb25zIGZyb20gMTk5NyB0aHJvdWdoIDIwMTcsIHRoZXNlIGRhdGEgd2VyZSBvYnRhaW5lZCBmcm9tIElMSU5ldCBhbmQgV0hPL05SRVZTUyAoQUREIENJVEFUSU9OIEhFUkUgT05DRSBEQVRBIElTIE9CVEFJTkVEKS4NCiogRm9yIHRoZSBzZWFzb25zIGZyb20gMTk3NiAtIDE5OTYsIHNlYXNvbmFsIElMSSBkYXRhIHdlcmUgbm90IGF2YWlsYWJsZSBhbmQgaXQgd2FzIGFzc3VtZWQgdGhhdA0KDQokJFx0ZXh0e0lMSX1fe3R9ID0gXGZyYWN7MX17YHIgMjAyMCAtIDE5OTcgKyAxYH1cc3VtX3trPTE5OTd9XnsyMDIwfSBcdGV4dHtJTEl9X3trfTsgXCB0ID0gMTk3NiwgMTk3NywgXGxkb3RzLCAxOTk2OyQkDQphbmQgdGhlIGRhdGEgZm9yICRGX3QkIGFuZCAkTl90JCB3ZXJlIG9idGFpbmVkIGZyb20gQHRob21wc29uMjAwMy4NCiogRm9yIGFsbCBzZWFzb25zIHByaW9yIHRvIDE5NzYsIG5vIHNlYXNvbmFsIGludGVuc2l0eSBkYXRhIHdlcmUgYXZhaWxhYmxlIGFuZCBpdCB3YXMgYXNzdW1lZCB0aGF0IHRoZSBpbnRlbnNpdHkgb2YgZWFjaCBzZWFzb24gd2FzIGVxdWFsIHRvIHRoZSBtZWFuIGludGVuc2l0eSBvZiBzZWFzb25zIDE5NzYgLSAyMDE3LiBUaGF0IGlzLA0KDQokJFx0aWxkZXtJX3R9ID0gXGZyYWN7MX17YHIgMjAyMCAtIDE5NzYgKyAxYH1cc3VtX3trID0gMTk3Nn1eezIwMjB9IFx0aWxkZXtJX2t9OyBcIHQgPCAxOTc2LiQkDQoNClRoZSBjb21wbGV0ZSBkYXRhIGZvciAkXHRleHR7SUxJfV90JCwgJEZfdCQsIGFuZCAkTl90JCBhcmUgZm91bmQgaW4gRklMRSBOQU1FIEhFUkUuIFdlIGNhbiBjYWxjdWxhdGUgdGhlIG1pc3NpbmcgZGF0YSBhcHByb3hpbWF0aW9ucyBhbmQgaW50ZW5zaXR5IGFzIGZvbGxvd3MuDQoNCmBgYHtyIHNlYXNvbmFsIGludGVuc2l0eX0NCg0KYGBgDQoNCg0KIyAkXGdhbW1hX3t5LHR9JDogZnJhY3Rpb24gb2Ygc2Vhc29uIGV4cGVyaWVuY2VkDQoNCiMgJHtpX3t5LHR9fSQ6IHRpbWUtdmFyeWluZyBwZXItc2Vhc29uIGluZmVjdGlvbiByYXRlDQoNCiMgJGFfe3ksdH0kOiBpbmRpdmlkdWFsIHRpbWUtdmFyeWluZyBwcm9iYWJpbGl0eSBvZiBpbmZlY3Rpb24NCg0KIyAkVV97eSx0fSQ6IHRoZSBmcmFjdGlvbiB1bmV4cG9zZWQNCg0KIyAkbF97cyx0fSQ6IGZyZXF1ZW5jeSBvZiBzdWJ0eXBlICRzJCBkdXJpbmcgc2Vhc29uICR0JA0KDQojICRtX3tzLHQseX0kOiBpbXByaW50aW5nIHByb2JhYmlsaXR5</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNhbGN1bGF0aW5nIEltcHJpbnRpbmcgUHJvYmFiaWxpdGllcyINCmF1dGhvcjogIlphbmUgQmlsbGluZ3MiDQpkYXRlOiAiYHIgU3lzLkRhdGUoKWAiDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpgYGB7ciBzZXR1cCwgaW5jbHVkZT1GQUxTRX0NCmtuaXRyOjpvcHRzX2NodW5rJHNldChlY2hvID0gVFJVRSkNCmxvYWRfcGtnIDwtIGZ1bmN0aW9uKHBrZykgew0KICBpZiAoaXNGQUxTRShyZXF1aXJlKHBrZywgY2hhcmFjdGVyLm9ubHkgPSBUUlVFKSkpIHsNCiAgICBpbnN0YWxsLnBhY2thZ2VzKHBrZywgcmVwb3M9Imh0dHBzOi8vY3Jhbi5yc3R1ZGlvLmNvbSIpDQogIH0gZWxzZSB7DQogICAgcmVxdWlyZShwa2csIGNoYXJhY3Rlci5vbmx5ID0gVFJVRSkNCiAgfQ0KfQ0KbG9hZF9wa2coInRpZHl2ZXJzZSIpDQpsb2FkX3BrZygiaGVyZSIpDQoNCiMgQ29uc3RhbnQgZm9yIHNldHRpbmcgdGhlIG1heGltdW0gZmx1IHNlYXNvbiBpbiB0aGUgZGF0YS4NCmN5ZWFyIDwtIDIwMjANCg0KIyBUT0RPIGNoZWNrIGlmIHRoZXJlIGlzIGFuIEFQSSBmb3IgYXV0b21hdGljYWxseSBkb3dubG9hZGluZyB0aGUgSUxJTmV0IGFuZA0KIyAgV0hPIGRhdGEuDQpgYGANCg0KIyBJbnRyb2R1Y3Rpb24NCg0KSW4gdGhpcyBub3RlYm9vayBJIHdpbGwgdGVzdCBob3cgdG8gY2FsY3VsYXRlIEhBIGltcHJpbnRpbmcgcHJvYmFiaWxpdGllcyBmb3IgSDEsIEgyLCBhbmQgSDMgc3VidHlwZXMgb2YgaW5mbHVlbnphIEEgZm9yIGVhY2ggYmlydGgteWVhciBjb2hvcnQgYW5kIHNlYXNvbiB1c2luZyB0aGUgbWV0aG9kIG9mIEBBcmV2YWxvMjAyMCBhbmQgQEdvc3RpYzIwMTYuDQoNCkFsbW9zdCBldmVyeXRoaW5nIGluIHRoaXMgZG9jdW1lbnQgaXMgcmlwcGVkIGRpcmVjdGx5IGZyb20gdGhlc2UgdHdvIHBhcGVycyBhbmQganVzdCByZS13cml0dGVuIGluIGEgZm9ybWF0IHRoYXQgaXMgdW5kZXJzdGFuZGFibGUgYnkgbWUuDQoNCk9uY2UgdGhlc2UgY2FsY3VsYXRpb25zIGFyZSBjb21wbGV0ZWQgYW5kIGRvdWJsZS1jaGVja2VkLCB0aGV5IHdpbGwgYmUgbW92ZWQgaW50byB0aGUgbWFpbiBDSVZJQ2RhdGEgcmVwb3NpdG9yeSBhbmQgYW4gTFVUIGNhbiBiZSBjYWxjdWxhdGVkIGZvciBlYWNoIHNlYXNvbi9iaXJ0aC15ZWFyIGNvbWJpbmF0aW9uLCBzbyB0aGF0IHRoZSBpbXByaW50aW5nIHByb2JhYmlsaXRpZXMgY2FuIGJlIGFzc2lnbmVkIHRvIGVhY2ggaW5kaXZpZHVhbCBpbiB0aGUgY29ob3J0Lg0KDQpUaGUgaW1wcmludGluZyBwcm9iYWJpbGl0eSwgJG1fe3MsdCx5fSQgaXMgZGVmaW5lZCBhcyB0aGUgcHJvYmFiaWxpdHkgdGhhdCBhIHBlcm9zbiBib3JuIGluIHllYXIgJHkkIHloYWQgdGhlaXIgZmlyc3QgaW5mbHVlbnphIEEgaW5mZWN0aW9uIHdpdGggc3VidHlwZSAkcyQgaW4gc2Vhc29uICR0JCBpcyBnaXZlbiBieQ0KJCRtX3tzLHQseX0gPSBsX3tzLHR9IGFfe3ksdH0gVV97eSx0fSQkDQp3aGVyZSB0aGUgbmVjZXNzYXJ5IGNvbXBvbmVudHMgYXJlDQoNCiogJGxfe3MsdH0kLCB0aGUgZnJlcXVlbmN5IG9mIHN1YnR5cGUgJHMkIGR1cmluZyBzZWFzb24gJHQkOw0KKiAkYV97eSx0fSQsIHRoZSBwcm9iYWJpbGl0eSB0aGF0IGEgbmFpdmUgaW5kaXZpZHVhbCBib3JuIGluIHllYXIgJHkkIGlzIGluZmVjdGVkIGluIHNlYXNvbiAkdCQ7DQoqICR7aV97eSx0fX0kLCB0aGUgdGltZS12YXJ5aW5nIHBlci1zZWFzb24gaW5mZWN0aW9uIHJhdGU7DQoqICRpXzAkLCB0aGUgZXhwZWN0ZWQgcGVyLXNlYXNvbiBpbmZlY3Rpb24gcmF0ZTsNCiogJElfdCQsIHRoZSBzZWFzb25hbCBpbnRlbnNpdHkgb2YgaW5mbHVlbnphIEE7DQoqICRcZ2FtbWFfe3ksdH0kLCB0aGUgZnJhY3Rpb24gb2Ygc2Vhc29uICR0JCBleHBlcmllbmNlZCBieSBhbiBpbmRpdmlkdWFsIGJvcm4gaW4geWVhciAkeSQ7IGFuZA0KKiAkVV97eSx0fSQsIHRoZSBmcmFjdGlvbiBvZiBwZW9wbGUgYm9ybiBpbiB5ZWFyICR5JCB3aG8gd2VyZSB1bmV4cG9zZWQgYXQgdGhlIGJlZ2lubmluZyBvZiBzZWFzb24gJHQkLg0KDQojICRpXzAkOiBleHBlY3RlZCBwZXItc2Vhc29uIGluZmVjdGlvbiByYXRlDQoNCkFzc3VtaW5nIHRoYXQgdGhlIHJhdGUgb2YgaW5mbHVlbnphIEEgaW5mZWN0aW9uIGluIGVhY2ggc2Vhc29uIGlzIGNvbnN0YW50LCBzYXksICRpXzAkLCB3ZSBoYXZlIHRoYXQNCiQkUChcdGV4dHtpbmZlY3Rpb24gaW4gc2luZ2xlIHNlYXNvbn0pID0gMSAtIGVeey1pXzB9LiQkDQoNCkFzc3VtaW5nIHRoYXQgdGhlIGF2ZXJhZ2UgcHJvYmFiaWxpdHkgb2YgYSBuYWl2ZSBpbmRpdmlkdWFsIGJlaW5nIGluZmVjdGVkIGluIGEgc2luZ2xlIHNlYXNvbiBpcyAkMC4yOCQgW0Bib2Rld2VzMjAxMSwgQGdvc3RpYzIwMTZdLCB0aGVuDQokJGlfMCA9IC1cbG4oMSAtIDAuMjgpIFxhcHByb3ggYHIgcm91bmQoLWxvZygxLTAuMjgpLDQpYC4kJA0KDQpXZSB3aWxsIG5lZWQgdGhpcyBsYXRlciBzbyBJIGhhdmUgaW5jbHVkZWQgdGhlIGBSYCBjb2RlIGhlcmUgZXZlbiB0aG91Z2ggaXQgaXMgdHJpdmlhbC4NCg0KYGBge3IgaTB9DQppXzAgPC0gLWxvZygxLTAuMjgpDQpgYGANCg0KIyAkSV90JDogc2Vhc29uYWwgaW50ZW5zaXR5DQoNClRoZSAqKnVubm9ybWFsaXplZCoqIHNlYXNvbmFsIGludGVuc2l0eSwgJFx0aWxkZXtJX3R9JCwgd2FzIGRlZmluZWQgYXMgdGhlIHByb2R1Y3Qgb2YgJFx0ZXh0e0lMSX1fdCQsIHRoZSBtZWFuIGZyYWN0aW9uIG9mIHBhdGllbnRzIHdpdGggSUxJIGR1cmluZyBzZWFzb24gJHQkLCBhbmQgJEZfdCQsIHRoZSBwZXJjZW50YWdlIG9mIHNwZWNpbWFucyB0ZXN0aW5nIHBvc2l0aXZlIGZvciBpbmZsdWVuemEgQSBkdXJpbmcgc2Vhc29uICR0JDsgZGl2aWRlZCBieSB0aGUgdG90YWwgbnVtYmVyIG9mIHJlc3BpcmF0b3J5IHNwZWNpbWVucyB0ZXN0ZWQgaW4gc2Vhc29uICR0JC4gVGhhdCBpcywNCiQkXHRpbGRle0lfdH0gPSBcZnJhY3tcdGV4dHtJTEl9X3QgRl90fXtOX3R9LiQkDQoNClRoZSBmaW5hbCBzZWFzb25hbCBpbnRlbnNpdHksICRJX3QkLCB1c2VkIGluIHRoZSBjYWxjdWxhdGlvbnMsIHdhcyAqKm5vcm1hbGl6ZWQqKiBieSB0aGUgbWVhbiBpbnRlbnNpdHkgb3ZlciB0aGUgc2Vhc29ucyBmcm9tIDE5NzYgdG8gYHIgY3llYXJgLCBpLmUuDQokJElfdCA9IFxmcmFje1x0aWxkZXtJX3R9fXtcZnJhY3sxfXtgciBjeWVhciAtIDE5NzYgKyAxYH1cc3VtX3trID0gMTk3Nn1ee2ByIGN5ZWFyYH0gXHRpbGRle0lfa319LiQkDQoNCiogRm9yIHRoZSBzZWFzb25zIGZyb20gMTk5NyB0aHJvdWdoIDIwMTc6DQogICogJFx0ZXh0e0lMSX1fdCQgZGF0YSB3ZXJlIG9idGFpbmVkIGZyb20gdGhlIElMSU5ldCBkYXRhIGF2YWlsYWJsZSBmcm9tIEBmbHV2aWV3LiBUaGUgZGF0YSBhcmUgcmVwb3J0ZWQgYXMgd2Vla2x5IChFWFBMQUlOIEhPVyBUTyBHRVQgVEhFIFFVQU5USVRZKQ0KICAqICRGX3QkIGFuZCAkTl90JCBkYXRhIHdlcmUgb2J0YWluZWQgZnJvbSB0aGUgV0hPL05SRVZTUyBkYXRhIGFsc28gYXZhaWxhYmxlIGZyb20gQGZsdXZpZXcuIEZvciB0aGUgZGF0YSBmcm9tIDIwMTUgb253YXJkLCB3ZWVrIDQwIG9mIGEgY2FsZW5kYXIgeWVhciB3YXMgY29uc2lkZXJlZCB0aGUgYmVnaW5uaW5nIG9mIGFuIGluZmx1ZW56YSBzZWFzb24gKHNvIGUuZy4gdGhlIDIwMTUgaW5mbHVlbnphIHNlYXNvbiBiZWdpbnMgaW4gd2VlayA0MCBvZiAyMDE1IGFuZCBsYXN0cyB0aHJvdWdoIHdlZWsgMzkgb2YgMjAxNikuIEZ1cnRoZXJtb3JlLCB0aGUgdG90YWwgbnVtYmVyIG9mIHNwZWNpbWVucyBhbmQgdG90YWwgbnVtYmVyIG9mIHBvc2l0aXZlIGluZmx1ZW56YSBBIHNwZWNpbWVucyBmcm9tIHRoZSBjbGluaWNhbCBsYWJzIGFuZCBwdWJsaWMgaGVhbHRoIHN1cnZlaWxsYW5jZSB3ZXJlIGFkZGVkIHRvZ2V0aGVyIHRvIG9idGFpbiB0aGUgdG90YWxzLg0KKiBGb3IgdGhlIHNlYXNvbnMgZnJvbSAxOTc2IC0gMTk5Niwgc2Vhc29uYWwgSUxJIGRhdGEgd2VyZSBub3QgYXZhaWxhYmxlIGFuZCBpdCB3YXMgYXNzdW1lZCB0aGF0IHRoZSAkXHRleHR7SUxJfV90JCBmb3IgdGhlc2UgeWVhcnMgd2FzIGVxdWFsIHRvIHRoZSBtZWFuIG9mIHRoZSAkXHRleHR7SUxJfV90JCBmb3IgdGhlIDE5OTcgLSBgciBjeWVhcmAgc2Vhc29ucy4gVGhlIGF2YWlsYWJsZSBkYXRhIHdlcmUgb2J0YWluZWQgZnJvbSBAdGhvbXBzb24yMDAzLCBhbmQgdGhlIElMSSBkYXRhIHdlcmUgY2FsY3VsYXRlZCBhcw0KDQokJFx0ZXh0e0lMSX1fe3R9ID0gXGZyYWN7MX17YHIgY3llYXIgLSAxOTk3ICsgMWB9XHN1bV97az0xOTk3fV57YHIgY3llYXJgfSBcdGV4dHtJTEl9X3trfTsgXCB0ID0gMTk3NiwgMTk3NywgXGxkb3RzLCAxOTk2LiQkDQoNCiogRm9yIGFsbCBzZWFzb25zIHByaW9yIHRvIDE5NzYsIG5vIHNlYXNvbmFsIGludGVuc2l0eSBkYXRhIHdlcmUgYXZhaWxhYmxlIGFuZCBpdCB3YXMgYXNzdW1lZCB0aGF0IHRoZSBpbnRlbnNpdHkgb2YgZWFjaCBzZWFzb24gd2FzIGVxdWFsIHRvIHRoZSBtZWFuIGludGVuc2l0eSBvZiBzZWFzb25zIDE5NzYgLSAyMDE3LiBUaGF0IGlzLA0KDQokJFx0aWxkZXtJX3R9ID0gXGZyYWN7MX17YHIgY3llYXIgLSAxOTc2ICsgMWB9XHN1bV97ayA9IDE5NzZ9XntgciBjeWVhcmB9IFx0aWxkZXtJX2t9OyBcIHQgPCAxOTc2LiQkDQoNCkFzc29jaWF0ZWQgcmF3IGRhdGEgZmlsZXM6DQoNCiogYGRhdGFcdGhvbXBzb24yMDAzLmNzdmAgY29udGFpbnMgdGhlIHRhYmxlIGZyb20gQHRob21wc29uMjAwMyB3aXRoIHRoZSAkRl90JCBhbmQgJE5fdCQgZGF0YSB1c2VkIGZvciBzZWFzb25zIDE5NzYgLSAxOTk2Lg0KKiBgZGF0YVxJTElOZXQuY3N2YCBjb250YWlucyB0aGUgSUxJTmV0IGRhdGEgYWNjZXNzaWJsZSBmcm9tIEBmbHV2aWV3LCB1c2VkIGZvciB0aGUgJFx0ZXh0e0lMSX1fdCQgZGF0YSBmcm9tIHNlYXNvbnMgMTk5NyAtIGByIGN5ZWFyYC4NCiogd2hvL252cmVzcw0KDQpJbiBvcmRlciB0byBjYWxjdWxhdGUgdGhlIHNlYXNvbmFsIGludGVuc2l0eSwgZmlyc3Qgd2UgaW1wb3J0IHRoZSBkYXRhIHVzZWQgZm9yIHRoZSBzZWFzb25zIGJlZ2lubmluZyBpbiAxOTc2IHRob3VnaCAxOTk2Lg0KDQpgYGB7ciBUaG9tcHNvbjIwMDMgZGF0YSwgd2FybmluZyA9IEZBTFNFLCBtZXNzYWdlID0gRkFMU0V9DQp0aG9tcHNvbjIwMDMgPC0gDQogIHJlYWRyOjpyZWFkX2NzdigNCiAgICBmaWxlID0gaGVyZTo6aGVyZSgiZGF0YS9UaG9tcHNvbjIwMDMuY3N2IiksDQogICAgc2tpcCA9IDIsDQogICAgbl9tYXggPSAyMSwNCiAgICBjb2xfdHlwZXMgPSAiY2RkZGRkZGQiDQogICkgJT4lDQogIGRwbHlyOjp0cmFuc211dGUoDQogICAgIyByZWNvcmQgc2Vhc29uIGFzIGJlZ2lubmluZyB5ZWFyIG9ubHkNCiAgICBzZWFzb24gPSBhcy5udW1lcmljKHN1YnN0cihTZWFzb24sIDAsIDQpKSwNCiAgICAjIE5fdCBpcyB0b3RhbCBudW1iZXIgb2Ygc3BlY2ltZW5zIHRlc3RlZA0KICAgIE5fdCA9IGBTcGVjaW1lbnNcblRlc3RlZGAsDQogICAgIyBGX3QgaXMgc3VtIG9mIEgxTjEgYW5kIEgzTjIgc3BlY2ltZW5zIHRlc3RlZA0KICAgIEZfdCA9IGBBKEgxTjEpXG5Qb3NpdGl2ZUlzb2xhdGVzYCArIGBBKEgzTjIpXG5Qb3NpdGl2ZUlzb2xhdGVzYA0KICApDQpgYGANCg0KRnJvbSAxOTk2IG9ud2FyZCwgd2UgY2FuIHVzZSB0aGUgSUxJTmV0IGFuZCBXSE8vTlJFVlNTIGRhdGEgaW5zdGVhZCwgc28gbmV4dCB3ZSBpbXBvcnQgdGhhdC4gRmlyc3Qgd2UgaW1wb3J0IHRoZSBwcmUtMjAxNSBkYXRhLCB3aGljaCBpcyBhbHJlYWR5IGNvbWJpbmVkLg0KDQpgYGB7ciBXSE8gZGF0YSBwcmUgMjAxNX0NCndob19ucmV2c3NfcHJlMjAxNSA8LQ0KICByZWFkcjo6cmVhZF9jc3YoDQogICAgZmlsZSA9IGhlcmU6OmhlcmUoImRhdGEvV0hPLU5SRVZTUy1wcmUyMDE1LmNzdiIpLA0KICAgIHNraXAgPSAxLA0KICAgIGNvbF90eXBlcyA9ICJjY2RkZGRkZGRkZGRkIg0KICApICU+JQ0KICBkcGx5cjo6cm93d2lzZSgpICU+JQ0KICBkcGx5cjo6dHJhbnNtdXRlKA0KICAgIHllYXIgPSBZRUFSLA0KICAgIHdlZWsgPSBXRUVLLA0KICAgIHNlYXNvbiA9IGlmZWxzZShXRUVLID49IDQwLCBZRUFSLCBZRUFSIC0gMSksDQogICAgTl90ID0gYFRPVEFMIFNQRUNJTUVOU2AsDQogICAgRl90ID0gc3VtKGFjcm9zcyhzdGFydHNfd2l0aCgiQSAiKSkpDQogICkNCmBgYA0KDQpUaGUgZGF0YSBwb3N0IDIwMTUgd2FzIGNvbGxlY3RlZCBmcm9tIHR3byBkaWZmZXJlbnQgc291cmNlcyB3aGljaCBoYXZlIHRvIGJlIGpvaW5lZCBhbmQgc3VtbWVkIHRvZ2V0aGVyIGluIG9yZGVyIHRvIGdldCB0aGUgdG90YWxzLg0KDQpgYGB7ciBXSE8gZGF0YSBwb3N0IDIwMTUsIG1lc3NhZ2UgPSBGQUxTRSwgd2FybmluZyA9IEZBTFNFfQ0Kd2hvX25yZXZzc19waCA8LSANCiAgcmVhZHI6OnJlYWRfY3N2KA0KICAgIGZpbGUgPSBoZXJlOjpoZXJlKCJkYXRhL1dITy1OUkVWU1MtcHVibGljaGVhbHRoLmNzdiIpLA0KICAgIHNraXAgPSAxLA0KICAgIGNvbF90eXBlcyA9ICJjY2RkZGRkZGRkZGQiDQogICkgJT4lDQogIGRwbHlyOjpyb3d3aXNlKCkgJT4lDQogIGRwbHlyOjp0cmFuc211dGUoDQogICAgeWVhciA9IFlFQVIsDQogICAgd2VlayA9IFdFRUssDQogICAgc2Vhc29uID0gaWZlbHNlKFdFRUsgPj0gNDAsIFlFQVIsIFlFQVIgLSAxKSwNCiAgICBOX3BoID0gYFRPVEFMIFNQRUNJTUVOU2AsDQogICAgRl9waCA9IHN1bShhY3Jvc3Moc3RhcnRzX3dpdGgoIkEgIikpKQ0KICApDQoNCndob19ucmV2c3NfY2wgPC0NCiAgcmVhZHI6OnJlYWRfY3N2KA0KICAgIGZpbGUgPSBoZXJlOjpoZXJlKCJkYXRhL1dITy1OUkVWU1MtY2xpbmljYWwuY3N2IiksDQogICAgc2tpcCA9IDEsDQogICAgY29sX3R5cGVzID0gImNjZGRkZGRkZGQiDQogICkgJT4lDQogIGRwbHlyOjp0cmFuc211dGUoDQogICAgeWVhciA9IFlFQVIsDQogICAgd2VlayA9IFdFRUssDQogICAgc2Vhc29uID0gaWZlbHNlKFdFRUsgPj0gNDAsIFlFQVIsIFlFQVIgLSAxKSwNCiAgICBOX2NsID0gYFRPVEFMIFNQRUNJTUVOU2AsDQogICAgRl9jbCA9IGBUT1RBTCBBYA0KICApDQoNCndob19ucmV2c3NfcG9zdDIwMTUgPC0NCiAgZHBseXI6OmZ1bGxfam9pbigNCiAgICB4ID0gd2hvX25yZXZzc19jbCwNCiAgICB5ID0gd2hvX25yZXZzc19waCwNCiAgICBieSA9IGMoInllYXIiLCAid2VlayIsICJzZWFzb24iKQ0KICApICU+JQ0KICBkcGx5cjo6cm93d2lzZSh5ZWFyLCB3ZWVrLCBzZWFzb24pICU+JQ0KICBkcGx5cjo6c3VtbWFyaXplKA0KICAgIE5fdCA9IE5fY2wgKyBOX3BoLA0KICAgIEZfdCA9IEZfY2wgKyBGX3BoLA0KICAgIC5ncm91cHMgPSAiZHJvcCINCiAgKQ0KYGBgDQoNCk5vdyB3ZSBqdXN0IG5lZWQgdG8gcHV0IHRoZSBkYXRhIHRvZ2V0aGVyLg0KDQpgYGB7ciBXSE8gZGF0YX0NCndob19ucmV2c3MgPC0gDQogIHJiaW5kKHdob19ucmV2c3NfcHJlMjAxNSwgd2hvX25yZXZzc19wb3N0MjAxNSkgJT4lDQogIGRwbHlyOjp1bmdyb3VwKCkgJT4lDQogIGRwbHlyOjphcnJhbmdlKHllYXIsIHdlZWspDQpgYGANCg0KVGhlIG5leHQgdGFzayBmb3IgY2FsY3VsYXRpbmcgc2Vhc29uYWwgaW50ZW5zaXR5IGlzIHRvIGltcG9ydCB0aGUgSUxJIG5ldCBkYXRhIHNvIHRoYXQgdGhlIElMSSBkYXRhIGNhbiBiZSBqb2luZWQgdG8gdGhpcy4NCg0KYGBge3IgaW1wb3J0IElMSU5ldH0NCmlsaW5ldCA8LQ0KICByZWFkcjo6cmVhZF9jc3YoDQogICAgZmlsZSA9IGhlcmU6OmhlcmUoImRhdGEvSUxJTmV0LmNzdiIpLA0KICAgIHNraXAgPSAxLA0KICAgIG5hID0gYygiIiwgIk5BIiwgIlgiKSwNCiAgICBjb2xfdHlwZSA9ICJjY2RkZGRkZGRkZGRkZGQiDQogICkgJT4lDQogIGRwbHlyOjp0cmFuc211dGUoDQogICAgd2VlayA9IFdFRUssDQogICAgeWVhciA9IFlFQVIsDQogICAgc2Vhc29uID0gaWZlbHNlKFdFRUsgPj0gNDAsIFlFQVIsIFlFQVIgLSAxKSwNCiAgICBmcmFjdGlvbl9pbGkgPSBgJSBXRUlHSFRFRCBJTElgIC8gMTAwLA0KICApDQpgYGANCg0KTm93IHRoZSBJTEkgZnJhY3Rpb25zIG5lZWQgdG8gYmUgam9pbmVkIHRvIHRoZSBvdGhlciBkYXRhLCBhbmQgdGhlbiAkTl90JCBhbmQgJEZfdCQgc2hvdWxkIGJlIHN1bW1lZCBieSBzZWFzb24sIGFuZCAkXHRleHR7SUxJfV90JCBzaG91bGQgYmUgYXZlcmFnZWQgYnkgc2Vhc29uLg0KDQpgYGB7ciAxOTk3IHRvIHByZXNlbnQgZGF0YSBqb2luaW5nfQ0KaW50ZW5zaXR5X3Bvc3Q5NyA8LSANCiAgZHBseXI6OmZ1bGxfam9pbigNCiAgICB4ID0gd2hvX25yZXZzcywNCiAgICB5ID0gaWxpbmV0LA0KICAgIGJ5ID0gYygid2VlayIsICJ5ZWFyIiwgInNlYXNvbiIpDQogICkgJT4lDQogIGRwbHlyOjpncm91cF9ieShzZWFzb24pICU+JQ0KICBkcGx5cjo6c3VtbWFyaXplKA0KICAgIE5fdCA9IHN1bShOX3QpLA0KICAgIEZfdCA9IHN1bShGX3QpLA0KICAgIElMSV90ID0gbWVhbihmcmFjdGlvbl9pbGkpLA0KICAgIC5ncm91cHMgPSAiZHJvcCINCiAgKSAlPiUNCiAgZHBseXI6OnVuZ3JvdXAoKQ0KYGBgDQoNCk5leHQgd2UgY2FuIGNvbWJpbmUgdGhpcyB3aXRoIHRoZSBkYXRhIGZvciB0aGUgMTk3NiB0byAxOTk2IHNlYXNvbnMsIGFuZCBmaWxsIGluIHRoZSBtaXNzaW5nIHZhbHVlcyBmb3IgJFx0ZXh0e0lMSX1fdCQuDQoNCmBgYHtyIGNvbWJpbmluZyBpbnRlbnNpdHkgY29tcG9uZW50c30NCnRob21wc29uMjAwM19pbXB1dGVkIDwtIHRob21wc29uMjAwMyAlPiUNCiAgZHBseXI6Om11dGF0ZSgNCiAgICBJTElfdCA9IG1lYW4oaW50ZW5zaXR5X3Bvc3Q5NyRJTElfdCkNCiAgKQ0KDQppbnRlbnNpdHlfcG9zdDc2IDwtIHJiaW5kKHRob21wc29uMjAwM19pbXB1dGVkLCBpbnRlbnNpdHlfcG9zdDk3KQ0KYGBgDQoNCk5vdyB3ZSBoYXZlIGFsbCB0aGUgaW5mb3JtYXRpb24gd2UgbmVlZCB0byBjYWxjdWxhdGUgc2Vhc29uYWwgaW50ZW5zaXR5LCBhbmQgdG8gZmlsbCBpbiB0aGUgaW50ZW5zaXR5IGZvciB0aGUgc2Vhc29ucyBmcm9tIDE5MTggLSAxOTc1IGFzIHdlbGwuIEZpbmFsbHksIHdlIG5lZWQgdG8gbm9ybWFsaXplIHRoZSB2YWx1ZXMuDQoNCmBgYHtyIHNlYXNvbmFsIGludGVuc2l0eSBjYWxjdWxhdGlvbn0NCnNlYXNvbmFsX2ludGVuc2l0eSA8LSBpbnRlbnNpdHlfcG9zdDc2ICU+JQ0KICBkcGx5cjo6cm93d2lzZSgpICU+JQ0KICBkcGx5cjo6dHJhbnNtdXRlKA0KICAgIHNlYXNvbiA9IHNlYXNvbiwNCiAgICBJX3QgPSBJTElfdCAqIEZfdCAvIE5fdA0KICApDQoNCnByZV83Nl9pbnRlbnNpdHkgPC0gZGF0YS5mcmFtZSgNCiAgc2Vhc29uID0gc2VxKDE5MTgsIDE5NzUsIDEpLA0KICBJX3QgPSByZXAobWVhbihzZWFzb25hbF9pbnRlbnNpdHkkSV90LCBuYS5ybSA9IFRSVUUpLCA1OCkNCikNCg0KIyBOb3JtYWxpemUgdGhlIGludGVuc2l0eSB2YWx1ZXMgKEktdGlsZGVfdCB0byBJX3Qgc3RlcCkNCnNlYXNvbmFsX2ludGVuc2l0eSA8LSANCiAgcmJpbmQocHJlXzc2X2ludGVuc2l0eSwgc2Vhc29uYWxfaW50ZW5zaXR5KSAlPiUNCiAgZHBseXI6Om11dGF0ZShJX3QgPSBJX3QgLyBtZWFuKHNlYXNvbmFsX2ludGVuc2l0eSRJX3QsIG5hLnJtID0gVFJVRSkpDQpgYGANCg0KIyAkXGdhbW1hX3t5LHR9JDogZnJhY3Rpb24gb2Ygc2Vhc29uIGV4cGVyaWVuY2VkDQoNCiMgJHtpX3t5LHR9fSQ6IHRpbWUtdmFyeWluZyBwZXItc2Vhc29uIGluZmVjdGlvbiByYXRlDQoNCiMgJGFfe3ksdH0kOiBpbmRpdmlkdWFsIHRpbWUtdmFyeWluZyBwcm9iYWJpbGl0eSBvZiBpbmZlY3Rpb24NCg0KIyAkVV97eSx0fSQ6IHRoZSBmcmFjdGlvbiB1bmV4cG9zZWQNCg0KIyAkbF97cyx0fSQ6IGZyZXF1ZW5jeSBvZiBzdWJ0eXBlICRzJCBkdXJpbmcgc2Vhc29uICR0JA0KDQojICRtX3tzLHQseX0kOiBpbXByaW50aW5nIHByb2JhYmlsaXR5</div>
 
 
 

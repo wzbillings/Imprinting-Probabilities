@@ -7,6 +7,21 @@ output: html_notebook
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+load_pkg <- function(pkg) {
+  if (isFALSE(require(pkg, character.only = TRUE))) {
+    install.packages(pkg, repos="https://cran.rstudio.com")
+  } else {
+    require(pkg, character.only = TRUE)
+  }
+}
+load_pkg("tidyverse")
+load_pkg("here")
+
+# Constant for setting the maximum flu season in the data.
+cyear <- 2020
+
+# TODO check if there is an API for automatically downloading the ILINet and
+#  WHO data.
 ```
 
 # Introduction
@@ -40,32 +55,196 @@ $$i_0 = -\ln(1 - 0.28) \approx `r round(-log(1-0.28),4)`.$$
 We will need this later so I have included the `R` code here even though it is trivial.
 
 ```{r i0}
-(i_0 <- -log(1-0.28))
+i_0 <- -log(1-0.28)
 ```
 
 # $I_t$: seasonal intensity
 
-The **unnormalized** seasonal intensity, $\tilde{I_t}$, was defined as the product of $\text{ILI}_t$, the mean fraction of patients with ILI during season $t$, and $F_t$, the percentage of specimans testing positive for influenza A during season $t$; normalized by the total number of respiratory specimans tested positive for influenza A in season $t$. That is,
+The **unnormalized** seasonal intensity, $\tilde{I_t}$, was defined as the product of $\text{ILI}_t$, the mean fraction of patients with ILI during season $t$, and $F_t$, the percentage of specimans testing positive for influenza A during season $t$; divided by the total number of respiratory specimens tested in season $t$. That is,
 $$\tilde{I_t} = \frac{\text{ILI}_t F_t}{N_t}.$$
 
-The final seasonal intensity, $I_t$, used in the calculations, was **normalized** by the mean intensity over the seasons from 1976 to 2020, i.e.
-$$I_t = \frac{\tilde{I_t}}{\frac{1}{`r 2020 - 1976 + 1`}\sum_{k = 1976}^{2020} \tilde{I_k}}.$$
+The final seasonal intensity, $I_t$, used in the calculations, was **normalized** by the mean intensity over the seasons from 1976 to `r cyear`, i.e.
+$$I_t = \frac{\tilde{I_t}}{\frac{1}{`r cyear - 1976 + 1`}\sum_{k = 1976}^{`r cyear`} \tilde{I_k}}.$$
 
-* For the seasons from 1997 through 2017, these data were obtained from ILINet and WHO/NREVSS (ADD CITATION HERE ONCE DATA IS OBTAINED).
-* For the seasons from 1976 - 1996, seasonal ILI data were not available and it was assumed that
+* For the seasons from 1997 through 2017:
+  * $\text{ILI}_t$ data were obtained from the ILINet data available from @fluview. The data are reported as weekly (EXPLAIN HOW TO GET THE QUANTITY)
+  * $F_t$ and $N_t$ data were obtained from the WHO/NREVSS data also available from @fluview. For the data from 2015 onward, week 40 of a calendar year was considered the beginning of an influenza season (so e.g. the 2015 influenza season begins in week 40 of 2015 and lasts through week 39 of 2016). Furthermore, the total number of specimens and total number of positive influenza A specimens from the clinical labs and public health surveillance were added together to obtain the totals.
+* For the seasons from 1976 - 1996, seasonal ILI data were not available and it was assumed that the $\text{ILI}_t$ for these years was equal to the mean of the $\text{ILI}_t$ for the 1997 - `r cyear` seasons. The available data were obtained from @thompson2003, and the ILI data were calculated as
 
-$$\text{ILI}_{t} = \frac{1}{`r 2020 - 1997 + 1`}\sum_{k=1997}^{2020} \text{ILI}_{k}; \ t = 1976, 1977, \ldots, 1996;$$
-and the data for $F_t$ and $N_t$ were obtained from @thompson2003.
+$$\text{ILI}_{t} = \frac{1}{`r cyear - 1997 + 1`}\sum_{k=1997}^{`r cyear`} \text{ILI}_{k}; \ t = 1976, 1977, \ldots, 1996.$$
+
 * For all seasons prior to 1976, no seasonal intensity data were available and it was assumed that the intensity of each season was equal to the mean intensity of seasons 1976 - 2017. That is,
 
-$$\tilde{I_t} = \frac{1}{`r 2020 - 1976 + 1`}\sum_{k = 1976}^{2020} \tilde{I_k}; \ t < 1976.$$
+$$\tilde{I_t} = \frac{1}{`r cyear - 1976 + 1`}\sum_{k = 1976}^{`r cyear`} \tilde{I_k}; \ t < 1976.$$
 
-The complete data for $\text{ILI}_t$, $F_t$, and $N_t$ are found in FILE NAME HERE. We can calculate the missing data approximations and intensity as follows.
+Associated raw data files:
 
-```{r seasonal intensity}
+* `data\thompson2003.csv` contains the table from @thompson2003 with the $F_t$ and $N_t$ data used for seasons 1976 - 1996.
+* `data\ILINet.csv` contains the ILINet data accessible from @fluview, used for the $\text{ILI}_t$ data from seasons 1997 - `r cyear`.
+* who/nvress
 
+In order to calculate the seasonal intensity, first we import the data used for the seasons beginning in 1976 though 1996.
+
+```{r Thompson2003 data, warning = FALSE, message = FALSE}
+thompson2003 <- 
+  readr::read_csv(
+    file = here::here("data/Thompson2003.csv"),
+    skip = 2,
+    n_max = 21,
+    col_types = "cddddddd"
+  ) %>%
+  dplyr::transmute(
+    # record season as beginning year only
+    season = as.numeric(substr(Season, 0, 4)),
+    # N_t is total number of specimens tested
+    N_t = `Specimens\nTested`,
+    # F_t is sum of H1N1 and H3N2 specimens tested
+    F_t = `A(H1N1)\nPositiveIsolates` + `A(H3N2)\nPositiveIsolates`
+  )
 ```
 
+From 1996 onward, we can use the ILINet and WHO/NREVSS data instead, so next we import that. First we import the pre-2015 data, which is already combined.
+
+```{r WHO data pre 2015}
+who_nrevss_pre2015 <-
+  readr::read_csv(
+    file = here::here("data/WHO-NREVSS-pre2015.csv"),
+    skip = 1,
+    col_types = "ccddddddddddd"
+  ) %>%
+  dplyr::rowwise() %>%
+  dplyr::transmute(
+    year = YEAR,
+    week = WEEK,
+    season = ifelse(WEEK >= 40, YEAR, YEAR - 1),
+    N_t = `TOTAL SPECIMENS`,
+    F_t = sum(across(starts_with("A ")))
+  )
+```
+
+The data post 2015 was collected from two different sources which have to be joined and summed together in order to get the totals.
+
+```{r WHO data post 2015, message = FALSE, warning = FALSE}
+who_nrevss_ph <- 
+  readr::read_csv(
+    file = here::here("data/WHO-NREVSS-publichealth.csv"),
+    skip = 1,
+    col_types = "ccdddddddddd"
+  ) %>%
+  dplyr::rowwise() %>%
+  dplyr::transmute(
+    year = YEAR,
+    week = WEEK,
+    season = ifelse(WEEK >= 40, YEAR, YEAR - 1),
+    N_ph = `TOTAL SPECIMENS`,
+    F_ph = sum(across(starts_with("A ")))
+  )
+
+who_nrevss_cl <-
+  readr::read_csv(
+    file = here::here("data/WHO-NREVSS-clinical.csv"),
+    skip = 1,
+    col_types = "ccdddddddd"
+  ) %>%
+  dplyr::transmute(
+    year = YEAR,
+    week = WEEK,
+    season = ifelse(WEEK >= 40, YEAR, YEAR - 1),
+    N_cl = `TOTAL SPECIMENS`,
+    F_cl = `TOTAL A`
+  )
+
+who_nrevss_post2015 <-
+  dplyr::full_join(
+    x = who_nrevss_cl,
+    y = who_nrevss_ph,
+    by = c("year", "week", "season")
+  ) %>%
+  dplyr::rowwise(year, week, season) %>%
+  dplyr::summarize(
+    N_t = N_cl + N_ph,
+    F_t = F_cl + F_ph,
+    .groups = "drop"
+  )
+```
+
+Now we just need to put the data together.
+
+```{r WHO data}
+who_nrevss <- 
+  rbind(who_nrevss_pre2015, who_nrevss_post2015) %>%
+  dplyr::ungroup() %>%
+  dplyr::arrange(year, week)
+```
+
+The next task for calculating seasonal intensity is to import the ILI net data so that the ILI data can be joined to this.
+
+```{r import ILINet}
+ilinet <-
+  readr::read_csv(
+    file = here::here("data/ILINet.csv"),
+    skip = 1,
+    na = c("", "NA", "X"),
+    col_type = "ccddddddddddddd"
+  ) %>%
+  dplyr::transmute(
+    week = WEEK,
+    year = YEAR,
+    season = ifelse(WEEK >= 40, YEAR, YEAR - 1),
+    fraction_ili = `% WEIGHTED ILI` / 100,
+  )
+```
+
+Now the ILI fractions need to be joined to the other data, and then $N_t$ and $F_t$ should be summed by season, and $\text{ILI}_t$ should be averaged by season.
+
+```{r 1997 to present data joining}
+intensity_post97 <- 
+  dplyr::full_join(
+    x = who_nrevss,
+    y = ilinet,
+    by = c("week", "year", "season")
+  ) %>%
+  dplyr::group_by(season) %>%
+  dplyr::summarize(
+    N_t = sum(N_t),
+    F_t = sum(F_t),
+    ILI_t = mean(fraction_ili),
+    .groups = "drop"
+  ) %>%
+  dplyr::ungroup()
+```
+
+Next we can combine this with the data for the 1976 to 1996 seasons, and fill in the missing values for $\text{ILI}_t$.
+
+```{r combining intensity components}
+thompson2003_imputed <- thompson2003 %>%
+  dplyr::mutate(
+    ILI_t = mean(intensity_post97$ILI_t)
+  )
+
+intensity_post76 <- rbind(thompson2003_imputed, intensity_post97)
+```
+
+Now we have all the information we need to calculate seasonal intensity, and to fill in the intensity for the seasons from 1918 - 1975 as well. Finally, we need to normalize the values.
+
+```{r seasonal intensity calculation}
+seasonal_intensity <- intensity_post76 %>%
+  dplyr::rowwise() %>%
+  dplyr::transmute(
+    season = season,
+    I_t = ILI_t * F_t / N_t
+  )
+
+pre_76_intensity <- data.frame(
+  season = seq(1918, 1975, 1),
+  I_t = rep(mean(seasonal_intensity$I_t, na.rm = TRUE), 58)
+)
+
+# Normalize the intensity values (I-tilde_t to I_t step)
+seasonal_intensity <- 
+  rbind(pre_76_intensity, seasonal_intensity) %>%
+  dplyr::mutate(I_t = I_t / mean(seasonal_intensity$I_t, na.rm = TRUE))
+```
 
 # $\gamma_{y,t}$: fraction of season experienced
 
