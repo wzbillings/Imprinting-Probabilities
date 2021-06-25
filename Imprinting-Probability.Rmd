@@ -3,6 +3,7 @@ title: "Calculating Imprinting Probabilities"
 author: "Zane Billings"
 date: "`r Sys.Date()`"
 output: html_notebook
+bibliography: "http://127.0.0.1:23119/better-bibtex/export/collection?/1/C4PZSNIV.biblatex"
 ---
 
 ```{r setup, include=FALSE}
@@ -26,7 +27,7 @@ cyear <- 2020
 
 # Introduction
 
-In this notebook I will test how to calculate HA imprinting probabilities for H1, H2, and H3 subtypes of influenza A for each birth-year cohort and season using the method of @Arevalo2020 and @Gostic2016.
+In this notebook I will test how to calculate HA imprinting probabilities for H1, H2, and H3 subtypes of influenza A for each birth-year cohort and season using the method of @arevalo2020 and @gostic2016.
 
 Almost everything in this document is ripped directly from these two papers and just re-written in a format that is understandable by me.
 
@@ -257,3 +258,5 @@ seasonal_intensity <-
 # $l_{s,t}$: frequency of subtype $s$ during season $t$
 
 # $m_{s,t,y}$: imprinting probability
+
+# References
