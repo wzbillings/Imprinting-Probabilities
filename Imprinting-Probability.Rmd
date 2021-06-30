@@ -200,17 +200,20 @@ ilinet <-
 Now the ILI fractions need to be joined to the other data, and then $N_t$ and $F_t$ should be summed by season, and $\text{ILI}_t$ should be averaged by season.
 
 ```{r 1997 to present data joining}
-intensity_post97 <- 
+intensity_post97_weekly <- 
   dplyr::full_join(
     x = who_nrevss,
     y = ilinet,
     by = c("week", "year", "season")
   ) %>%
+  dplyr::rename(ILI_t = fraction_ili)
+  
+intensity_post97 <- intensity_post97_weekly %>%
   dplyr::group_by(season) %>%
   dplyr::summarize(
     N_t = sum(N_t),
     F_t = sum(F_t),
-    ILI_t = mean(fraction_ili),
+    ILI_t = mean(ILI_t),
     .groups = "drop"
   ) %>%
   dplyr::ungroup()
@@ -250,11 +253,41 @@ seasonal_intensity <-
 
 # $\gamma_{y,t}$: fraction of season experienced
 
+For seasons 1997 and onward, the WHO-NREVSS dataset collects weekly data on the intensity of influenza. The fraction of influenza season $t$ occurring in week $w$ was defined as
+$$f_{w,t} = \frac{\text{ILI}_{w,t} F_{w,t}}{N_{w,t}\sum_{k = 0}^{k^*} \frac{\text{ILI}_{w=k,t}F_{w=k,t}}{N_{w=k,t}}}.$$
+where $w=0$ is the first week of the influenza season and $w=k^*$ is the final week. For seasons prior to 1997 where no weekly data was available, the fraction of season experienced in week $w$ was defined as
+$$f_{w,t} = \frac{1}{`r cyear - 1997 + 1`}\sum_{k = 1997}^{`r cyear`}f_{w,k}\ ,$$
+
+the mean fraction of season experienced in week $w$ for all seasons after 1997.
+
+First we want to calculate the fraction of season experienced for the years from 1997 onwards.
+
+```{r}
+fraction_experienced <- intensity_post97_weekly %>%
+  # Calculate the summation portion of the formula by grouping, and then
+  #  ungroup to calculate weekly value
+  dplyr::group_by(season) %>%
+  dplyr::mutate(season_sum = sum(ILI_t * F_t / N_t, na.rm = TRUE)) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(
+    f_wt = (ILI_t * F_t) / (N_t * season_sum)
+  )
+```
+
+Next we can calculate the mean for each week and assign this to the previous seasons.
+
+```{r}
+
+```
+
+
+Now in order to get the fraction of season experienced by an individual born in year $y$, we need to first calculate the proportion $p_{y,w,t}$ of individuals born in year $y$ that are over 180 days old in week $w$ of season $t$.
+
 # ${i_{y,t}}$: time-varying per-season infection rate
 
 # $a_{y,t}$: individual time-varying probability of infection
 
-# $U_{y,t}$: the fraction unexposed
+# $U_{y,t}$: fraction unexposed
 
 # $l_{s,t}$: frequency of subtype $s$ during season $t$
 
