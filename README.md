@@ -9,6 +9,8 @@ In this repo, I use the method of Gostic 2016 and Arevalo 2020 in order to calcu
 * [x] Baseline attack rate calculation
 * [x] Seasonal intensity
 * [ ] Fraction of season experienced
+  * [ ] Need to figure out how division by zero was handled.
+  * [ ] Details on $p$ calculations?
 * [ ] time-varying per-season infection probability
 * [ ] individual time-varying probability of infection
 * [ ] fraction unexposed
